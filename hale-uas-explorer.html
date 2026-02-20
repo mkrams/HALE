@@ -3,97 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HALE UAS Interactive System Explorer — Reviewed</title>
+<title>HALE UAS System Explorer — Reviewed</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--border:#475569;--text:#e2e8f0;--muted:#94a3b8;--accent:#3b82f6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--purple:#a78bfa;--teal:#14b8a6;--pink:#f472b6;--sky:#38bdf8;--yellow:#eab308;--rose:#fb7185}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;display:flex;flex-direction:column}
-.topbar{background:#1a1a2e;padding:10px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #2d2d44;flex-shrink:0;z-index:100;flex-wrap:wrap}
-.topbar h1{font-size:16px;font-weight:700;color:#fff}
-.topbar .pill{background:var(--accent);padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;color:#fff}
-.topbar .pill.review{background:var(--rose)}
-.topbar .controls{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
-.topbar button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer}
+.topbar{background:#1a1a2e;padding:8px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #2d2d44;flex-shrink:0;z-index:100;flex-wrap:wrap}
+.topbar h1{font-size:15px;font-weight:700;color:#fff}
+.topbar .pill{padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;color:#fff}
+.topbar .controls{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.topbar button,.topbar select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer}
 .topbar button:hover{background:var(--card2)}
 .topbar button.active{background:var(--accent);border-color:var(--accent)}
-.topbar button.issues-btn.active{background:var(--rose);border-color:var(--rose)}
-.legend{display:flex;gap:12px;font-size:10px;color:var(--muted);align-items:center;flex-wrap:wrap}
-.legend span{display:flex;align-items:center;gap:4px}
-.legend .dot{width:8px;height:8px;border-radius:50%}
-.workspace{flex:1;display:flex;overflow:hidden;position:relative}
+.search-box{background:var(--card);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:11px;width:160px}
+.search-box::placeholder{color:var(--border)}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-right:8px}
+.view-toggle button{border:none;border-right:1px solid var(--border);border-radius:0;padding:5px 14px}
+.view-toggle button:last-child{border-right:none}
+/* DIAGRAM VIEW */
+.diagram-view{flex:1;position:relative;overflow:hidden}
 canvas{position:absolute;top:0;left:0}
 #mainCanvas{z-index:1}
 #connCanvas{z-index:0}
-.detail-panel{position:absolute;right:0;top:0;bottom:0;width:400px;background:#1a1a2e;border-left:1px solid #2d2d44;z-index:50;transform:translateX(100%);transition:transform .25s ease;overflow-y:auto;padding:0}
+.detail-panel{position:absolute;right:0;top:0;bottom:0;width:400px;background:#1a1a2e;border-left:1px solid #2d2d44;z-index:50;transform:translateX(100%);transition:transform .25s ease;overflow-y:auto}
 .detail-panel.open{transform:translateX(0)}
-.dp-header{padding:16px;border-bottom:1px solid #2d2d44;display:flex;align-items:center;gap:10px}
-.dp-header .icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
-.dp-header h2{font-size:15px;font-weight:700;flex:1}
-.dp-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px}
-.dp-close:hover{color:#fff}
-.dp-section{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.05)}
-.dp-section h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
-.dp-section p{font-size:12px;line-height:1.6;color:var(--text)}
-.dp-props{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.dp-prop{background:rgba(255,255,255,.04);padding:6px 8px;border-radius:4px;font-size:11px}
-.dp-prop .k{color:var(--muted);font-size:10px}
-.dp-prop .v{color:#fff;font-weight:600}
-.dp-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600;margin:2px}
-.dp-conn{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px;cursor:pointer;border-radius:4px;padding:4px 6px}
+.dp-header{padding:14px 16px;border-bottom:1px solid #2d2d44;display:flex;align-items:center;gap:10px}
+.dp-header .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.dp-header h2{font-size:14px;font-weight:700;flex:1}
+.dp-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
+.dp-section{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05)}
+.dp-section h3{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+.dp-section p{font-size:12px;line-height:1.6}
+.dp-conn{display:flex;align-items:center;gap:6px;padding:3px 6px;font-size:11px;cursor:pointer;border-radius:4px}
 .dp-conn:hover{background:rgba(255,255,255,.06)}
-.dp-conn .arrow{color:var(--muted)}
-.tooltip{position:absolute;background:#1e293b;border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--text);pointer-events:none;z-index:200;max-width:260px;box-shadow:0 4px 12px rgba(0,0,0,.4);display:none}
-.search-box{background:var(--card);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:11px;width:180px}
-.search-box::placeholder{color:var(--border)}
-.issues-drawer{position:absolute;left:0;top:0;bottom:0;width:360px;background:#1a1a2e;border-right:1px solid #2d2d44;z-index:50;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;padding:0}
-.issues-drawer.open{transform:translateX(0)}
-.issues-drawer h2{font-size:14px;padding:16px;border-bottom:1px solid #2d2d44;display:flex;align-items:center;gap:8px}
-.issues-drawer h2 .badge{background:var(--rose);color:#fff;font-size:10px;padding:2px 8px;border-radius:8px}
-.issue-card{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}
-.issue-card:hover{background:rgba(255,255,255,.03)}
-.issue-card .issue-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.issue-card .issue-type .dot{width:6px;height:6px;border-radius:50%}
-.issue-card .issue-title{font-size:12px;font-weight:600;margin-bottom:4px;color:#fff}
-.issue-card .issue-desc{font-size:11px;color:var(--muted);line-height:1.5}
-.issue-card .issue-refs{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
-.issue-card .ref-chip{font-size:9px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:var(--sky);cursor:pointer}
-.issue-card .ref-chip:hover{background:rgba(255,255,255,.12)}
-.close-drawer{position:absolute;right:12px;top:14px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
-.close-drawer:hover{color:#fff}
-.stats-bar{display:flex;gap:12px;padding:10px 16px;border-bottom:1px solid #2d2d44;font-size:10px;color:var(--muted)}
-.stats-bar .stat{display:flex;align-items:center;gap:4px}
-.stats-bar .stat .n{color:#fff;font-weight:700;font-size:12px}
+.dp-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600;margin:2px}
+.tooltip{position:absolute;background:#1e293b;border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:11px;pointer-events:none;z-index:200;max-width:260px;box-shadow:0 4px 12px rgba(0,0,0,.4);display:none}
+/* LIST VIEW */
+.list-view{flex:1;overflow-y:auto;display:none;padding:0}
+.list-view.active{display:block}
+.diagram-view.active{display:flex}
+.list-filters{padding:10px 20px;border-bottom:1px solid #2d2d44;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#1a1a2e;position:sticky;top:0;z-index:10}
+.list-filters label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.list-filters select,.list-filters input{background:var(--card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:11px}
+.list-filters input{width:200px}
+.list-stats{margin-left:auto;font-size:11px;color:var(--muted)}
+.list-container{padding:12px 20px}
+.list-group-header{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:12px 0 6px;border-bottom:1px solid rgba(255,255,255,.05);margin-top:8px}
+.item-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:8px;margin:8px 0;overflow:hidden;transition:border-color .2s}
+.item-card:hover{border-color:var(--accent)}
+.item-header{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.item-header .color-bar{width:4px;height:32px;border-radius:2px;flex-shrink:0}
+.item-header .item-id{font-size:10px;font-weight:700;color:var(--muted);min-width:60px}
+.item-header .item-label{font-size:13px;font-weight:600;color:#fff;flex:1}
+.item-header .item-type{font-size:9px;padding:2px 8px;border-radius:8px;font-weight:700;text-transform:uppercase}
+.item-header .chevron{color:var(--muted);font-size:14px;transition:transform .2s}
+.item-card.expanded .chevron{transform:rotate(90deg)}
+.item-body{display:none;border-top:1px solid rgba(255,255,255,.05)}
+.item-card.expanded .item-body{display:block}
+.item-tab-bar{display:flex;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15)}
+.item-tab{padding:8px 16px;font-size:11px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent}
+.item-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.item-tab:hover{color:var(--text)}
+.tab-content{padding:14px 16px;display:none;font-size:12px;line-height:1.7}
+.tab-content.active{display:block}
+.pdf-quote{background:rgba(245,158,11,.06);border-left:3px solid var(--orange);padding:10px 14px;border-radius:0 6px 6px 0;margin:6px 0;font-style:italic;color:var(--text);font-size:11px;line-height:1.6}
+.pdf-ref{font-size:10px;color:var(--orange);font-style:normal;font-weight:600;margin-top:4px}
+.sysml-code{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;font-family:'Fira Code',monospace;font-size:11px;color:#c9d1d9;overflow-x:auto;white-space:pre;line-height:1.5;margin:6px 0}
+.solver-block{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:6px;padding:12px;margin:6px 0}
+.solver-var{display:flex;align-items:center;gap:8px;padding:2px 0;font-size:11px;font-family:monospace}
+.solver-var .val{color:var(--green);font-weight:700}
+.solver-var .val.fail{color:var(--red)}
+.solver-result{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;margin:4px 0}
+.solver-result.pass{background:rgba(16,185,129,.15);color:var(--green)}
+.solver-result.fail{background:rgba(239,68,68,.15);color:var(--red)}
+.solver-result.na{background:rgba(148,163,184,.1);color:var(--muted)}
+.trace-list{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.trace-chip{font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-weight:600}
+.trace-chip:hover{filter:brightness(1.3)}
+.pipeline-arrow{color:var(--muted);font-size:16px;text-align:center;padding:4px 0}
+.issue-badge{background:rgba(251,113,133,.15);color:var(--rose);font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:4px}
 </style>
 </head>
 <body>
 <div class="topbar">
   <h1>HALE UAS System Explorer</h1>
-  <span class="pill">INTERACTIVE</span>
-  <span class="pill review">REVIEWED</span>
-  <div class="legend">
-    <span><span class="dot" style="background:var(--accent)"></span>System</span>
-    <span><span class="dot" style="background:var(--sky)"></span>Component</span>
-    <span><span class="dot" style="background:var(--green)"></span>Subsystem</span>
-    <span><span class="dot" style="background:var(--purple)"></span>External</span>
-    <span><span class="dot" style="background:var(--orange)"></span>Requirement</span>
-    <span><span class="dot" style="background:var(--red)"></span>Function</span>
-    <span><span class="dot" style="background:var(--pink)"></span>Mission</span>
-    <span><span class="dot" style="background:var(--yellow)"></span>Challenge</span>
-    <span><span class="dot" style="background:var(--rose)"></span>Issue</span>
+  <span class="pill" style="background:var(--accent)">INTERACTIVE</span>
+  <span class="pill" style="background:var(--rose)">REVIEWED</span>
+  <div class="view-toggle">
+    <button id="btnDiagram" class="active" onclick="setView('diagram')">Diagram</button>
+    <button id="btnList" onclick="setView('list')">List View</button>
   </div>
-  <div class="controls">
-    <input class="search-box" id="searchBox" placeholder="Search nodes..." oninput="searchNodes(this.value)">
-    <button id="btnIssues" class="issues-btn" onclick="toggleIssues()">Issues (12)</button>
+  <div class="controls" id="diagramControls">
+    <input class="search-box" id="searchBox" placeholder="Search..." oninput="searchNodes(this.value)">
     <button id="btnAll" class="active" onclick="setLayer('all')">All</button>
     <button id="btnPhys" onclick="setLayer('physical')">Physical</button>
-    <button id="btnReq" onclick="setLayer('requirements')">Requirements</button>
-    <button id="btnFunc" onclick="setLayer('functions')">Functions</button>
+    <button id="btnReq" onclick="setLayer('requirements')">Reqs</button>
+    <button id="btnFunc" onclick="setLayer('functions')">Funcs</button>
     <button id="btnMsn" onclick="setLayer('missions')">Missions</button>
     <button id="btnChal" onclick="setLayer('challenges')">Challenges</button>
-    <button onclick="resetView()">Reset View</button>
+    <button onclick="resetView()">Reset</button>
   </div>
 </div>
-<div class="workspace" id="workspace">
+
+<!-- DIAGRAM VIEW -->
+<div class="diagram-view active" id="diagramView">
   <canvas id="connCanvas"></canvas>
   <canvas id="mainCanvas"></canvas>
   <div class="detail-panel" id="detailPanel">
@@ -104,124 +117,538 @@ canvas{position:absolute;top:0;left:0}
     </div>
     <div id="dpContent"></div>
   </div>
-  <div class="issues-drawer" id="issuesDrawer">
-    <h2>Review Findings <span class="badge" id="issueCount">12</span></h2>
-    <button class="close-drawer" onclick="toggleIssues()">&times;</button>
-    <div class="stats-bar">
-      <div class="stat"><span class="dot" style="background:var(--rose);width:6px;height:6px;border-radius:50%;display:inline-block"></span><span class="n" id="conflictCount">4</span> Conflicts</div>
-      <div class="stat"><span class="dot" style="background:var(--orange);width:6px;height:6px;border-radius:50%;display:inline-block"></span><span class="n" id="gapCount">8</span> Missing Traces</div>
-    </div>
-    <div id="issuesList"></div>
-  </div>
   <div class="tooltip" id="tooltip"></div>
+</div>
+
+<!-- LIST VIEW -->
+<div class="list-view" id="listView">
+  <div class="list-filters">
+    <label>Type</label>
+    <select id="filterType" onchange="renderList()">
+      <option value="all">All Types</option>
+      <option value="requirement">Requirements</option>
+      <option value="component">Components</option>
+      <option value="subsystem">Subsystems</option>
+      <option value="function">Functions</option>
+      <option value="external">External Entities</option>
+      <option value="mission">Missions</option>
+      <option value="challenge">Challenges</option>
+      <option value="issue">Issues</option>
+      <option value="system">System</option>
+    </select>
+    <label>Search</label>
+    <input id="listSearch" placeholder="Filter items..." oninput="renderList()">
+    <label style="margin-left:8px"><input type="checkbox" id="showIssuesOnly" onchange="renderList()"> Issues only</label>
+    <span class="list-stats" id="listStats"></span>
+  </div>
+  <div class="list-container" id="listContainer"></div>
 </div>
 
 <script>
 // =========================================================================
-// DATA MODEL — Updated with review findings
+// FULL DATA MODEL with PDF quotes, SysML2, Solver data
 // =========================================================================
-const NODES = [
-  // System
-  {id:'sys',label:'HALE UAS\nSystem',type:'system',layer:'physical',x:0,y:0,w:160,h:56,color:'#3b82f6',desc:'Top-level HALE UAS System — integrates all elements for file-and-fly NAS operations.',props:{operatesUnderIFR:'IFR',hasOperatingCerts:true,canFileAndFly:true,hasContingencyPlan:true,hasAutoLand:true},expanded:true,children:['ua','cs','comms','pilot']},
-  // Physical components
-  {id:'ua',label:'Unmanned\nAircraft',type:'component',layer:'physical',x:-320,y:150,w:140,h:48,color:'#38bdf8',desc:'The unmanned aircraft element (Section 2.1.1). Includes airframe, avionics, propulsion, collision avoidance, and navigation systems.',props:{maxAltitude:'≥ 40,000 ft MSL',maxEndurance:'≥ 24 hrs',hasCollisionAvoidance:true,hasTransponder:true,hasFlightRecovery:true,hasWeatherDetection:true,hasAutoLand:true,isRegistered:true,hasTypeCert:true,hasAirworthinessCert:true},expanded:false,children:['ua_airframe','ua_prop','ua_fltctrl','ua_ca','ua_nav','ua_wx','ua_frs','ua_transponder','ua_elec','ua_autoland']},
-  {id:'cs',label:'Control\nStation',type:'component',layer:'physical',x:-100,y:150,w:130,h:48,color:'#38bdf8',desc:'Control Station & Ground Support element (Section 2.1.2). Provides mission planning, aircraft control, launch/recovery, maintenance.',props:{isTypeCertified:true,isConfigControlled:true,hasSecurityMeasures:true,supportsMissionPlanning:true,supportsAircraftControl:true,supportsLaunchRecovery:true,supportsMaintenance:true}},
-  {id:'comms',label:'Data & Voice\nComm Links',type:'component',layer:'physical',x:130,y:150,w:140,h:48,color:'#38bdf8',desc:'Data and Voice Communication Links element (Section 2.1.3). Provides C2 uplink/downlink and voice ATC communications.',props:{supportsLOS:true,supportsOTH:true,supportsVoiceATC:true,supportsC2Uplink:true,supportsC2Downlink:true,usesAuthSpectrum:true,isHighlyAvailable:true,isReliable:true,isSecure:true},expanded:false,children:['comms_los','comms_oth','comms_satcom','comms_relay','comms_landline']},
-  {id:'pilot',label:'Pilot-in-\nCommand',type:'component',layer:'physical',x:350,y:150,w:120,h:48,color:'#38bdf8',desc:'Certificated UAS pilot/operator (Section 3.1.3). Must hold Part 61 certificate with instrument rating.',props:{hasPilotCert:true,hasInstrumentRating:true,hasMedicalCert:true,meetsCurrency:true,isCertifiedPart61:true}},
-  // UA subsystems
-  {id:'ua_airframe',label:'Airframe &\nStructures',type:'subsystem',layer:'physical',x:-520,y:310,w:110,h:40,color:'#10b981',desc:'Aircraft airframe and structural components.'},
-  {id:'ua_prop',label:'Propulsion',type:'subsystem',layer:'physical',x:-400,y:310,w:100,h:40,color:'#10b981',desc:'Propulsion system (varies by aircraft type: solar, turboprop, jet).'},
-  {id:'ua_fltctrl',label:'Flight\nControls',type:'subsystem',layer:'physical',x:-290,y:310,w:100,h:40,color:'#10b981',desc:'Flight Management Control System (FMCS). Processes pilot commands and autonomous flight plans.'},
-  {id:'ua_ca',label:'Collision\nAvoidance',type:'subsystem',layer:'physical',x:-180,y:310,w:110,h:40,color:'#10b981',desc:'Sense & Avoid system. Must perform 7 functions: detect, track, evaluate, prioritize, determine maneuver, command, execute (Section 5.2).'},
-  {id:'ua_nav',label:'Navigation',type:'subsystem',layer:'physical',x:-520,y:370,w:100,h:40,color:'#10b981',desc:'Navigation systems including GPS, WAAS, LAAS for precision approach. Supplemental nav needed for GPS-independent operation (Section 5.2).'},
-  {id:'ua_wx',label:'Weather\nDetection',type:'subsystem',layer:'physical',x:-410,y:370,w:110,h:40,color:'#10b981',desc:'Weather detection & avoidance equipment — ensures proper separation from adverse weather (Section 5.2).'},
-  {id:'ua_frs',label:'Flight Recovery\nSystem',type:'subsystem',layer:'physical',x:-290,y:370,w:120,h:40,color:'#10b981',desc:'Flight Recovery/Termination system for contingencies when landing cannot be performed at designated airfield (Section 5.2).'},
-  {id:'ua_transponder',label:'ATC\nTransponder',type:'subsystem',layer:'physical',x:-160,y:370,w:110,h:40,color:'#10b981',desc:'ATC radar transponder for cooperative surveillance and separation.'},
-  {id:'ua_elec',label:'Electrical\nSystem',type:'subsystem',layer:'physical',x:-520,y:430,w:110,h:40,color:'#10b981',desc:'Electrical system including position and strobe lights (Section 5.2). Required basic operating equipment.'},
-  {id:'ua_autoland',label:'Auto-Land\nSystem',type:'subsystem',layer:'physical',x:-400,y:430,w:110,h:40,color:'#10b981',desc:'Auto-land system for autonomous landing at UAS-designated airports in event of C2 link loss (Section 5.2). REVIEW: Conflicts with REQ-HITL.'},
-  // Comms subsystems
-  {id:'comms_los',label:'LOS\nComms',type:'subsystem',layer:'physical',x:60,y:310,w:90,h:40,color:'#10b981',desc:'Line-of-Sight communication links for near-field operations.'},
-  {id:'comms_oth',label:'OTH\nComms',type:'subsystem',layer:'physical',x:160,y:310,w:90,h:40,color:'#10b981',desc:'Over-the-Horizon communication links for long-range operations.'},
-  {id:'comms_satcom',label:'Satellite\nComm',type:'subsystem',layer:'physical',x:60,y:370,w:100,h:40,color:'#10b981',desc:'Satellite communication services for OTH C2 relay.'},
-  {id:'comms_relay',label:'Airborne/\nGround Relay',type:'subsystem',layer:'physical',x:170,y:370,w:110,h:40,color:'#10b981',desc:'Airborne or ground-based relay communication services.'},
-  {id:'comms_landline',label:'Landline\nComm',type:'subsystem',layer:'physical',x:110,y:430,w:110,h:40,color:'#10b981',desc:'Landline communication services — emergency-only direct phone to ATC center controller (Section 4.5.4).'},
-  // External entities
-  {id:'ext_faa',label:'FAA /\nRegulators',type:'external',layer:'physical',x:500,y:-100,w:120,h:44,color:'#a78bfa',desc:'Federal Aviation Administration. Provides regulatory oversight, certification authority, and COA issuance.'},
-  {id:'ext_atc_dep',label:'Local ATC\n(Departure)',type:'external',layer:'physical',x:440,y:40,w:120,h:44,color:'#a78bfa',desc:'Local ATC at departure airport: clearance, ground, tower, ATIS (Section 4.3.2).'},
-  {id:'ext_tracon',label:'TRACON /\nARTCC',type:'external',layer:'physical',x:530,y:120,w:120,h:44,color:'#a78bfa',desc:'Departure Control, En-Route Control (ARTCC), and Approach Control (Section 4.3.2).'},
-  {id:'ext_atc_dest',label:'Local ATC\n(Destination)',type:'external',layer:'physical',x:530,y:200,w:120,h:44,color:'#a78bfa',desc:'Local ATC at destination airport: ATIS, tower, ground (Section 4.3.2).'},
-  {id:'ext_fss',label:'Flight Service\nStation',type:'external',layer:'physical',x:440,y:280,w:120,h:44,color:'#a78bfa',desc:'Provides weather briefings, NOTAMs, and flight plan filing/closing (Section 4.3.1).'},
-  {id:'ext_airport',label:'Airport\nManagement',type:'external',layer:'physical',x:530,y:360,w:120,h:44,color:'#a78bfa',desc:'UAS-designated airport. Provides siting, safety, security, environmental, and logistics services (Section 4.5.2).'},
-  {id:'ext_other_ac',label:'Other\nAircraft',type:'external',layer:'physical',x:350,y:-80,w:110,h:44,color:'#a78bfa',desc:'Cooperative (transponder-equipped) and non-cooperative aircraft in the NAS (Section 4.3.2).'},
-  {id:'ext_fcc',label:'FCC / ITU',type:'external',layer:'physical',x:350,y:380,w:100,h:44,color:'#a78bfa',desc:'Frequency spectrum authority. No UAS C2 frequencies currently allocated (Section 3.3.4).'},
-  {id:'ext_icao',label:'ICAO',type:'external',layer:'physical',x:500,y:440,w:100,h:44,color:'#a78bfa',desc:'International Civil Aviation Organization — compliance needed for operations in international airspace (Section 5.4). ADDED from review.'},
-  // Stakeholder roles from Table 3
-  {id:'role_opsmgr',label:'Ops\nManager',type:'external',layer:'physical',x:210,y:-80,w:110,h:44,color:'#a78bfa',desc:'Operations Manager — develops mission/flight plan, monitors mission progress, ascertains mission success (Table 3). ADDED from review.'},
-  {id:'role_ground',label:'Ground\nCrew',type:'external',layer:'physical',x:210,y:-20,w:110,h:44,color:'#a78bfa',desc:'Ground Crew — performs aircraft preflight, tow/taxi, launch/recovery, park and secure (Table 3). ADDED from review.'},
-  {id:'role_payload',label:'Payload\nOps',type:'external',layer:'physical',x:210,y:40,w:110,h:44,color:'#a78bfa',desc:'Payload Operators — preflight, startup, operate, and shutdown payload systems (Table 3). ADDED from review.'},
-  // Requirements
-  {id:'r0',label:'REQ-0\nOverall',type:'requirement',layer:'requirements',x:-600,y:-120,w:110,h:44,color:'#f59e0b',desc:'UAS shall operate safely and routinely in the NAS.',props:{level:'Overall',source:'Table 2'}},
-  {id:'r1',label:'REQ-1\nAirworthiness',type:'requirement',layer:'requirements',x:-700,y:-40,w:120,h:44,color:'#f59e0b',desc:'UAS shall be airworthy.',props:{level:'L1'}},
-  {id:'r1_1',label:'REQ-1.1\nRegistration',type:'requirement',layer:'requirements',x:-800,y:40,w:120,h:40,color:'#f59e0b',desc:'The UAS shall be registered with the FAA.'},
-  {id:'r1_2',label:'REQ-1.2\nAirworthiness Cert',type:'requirement',layer:'requirements',x:-800,y:90,w:130,h:40,color:'#f59e0b',desc:'The UAS shall obtain and maintain an airworthiness certificate.'},
-  {id:'r1_3',label:'REQ-1.3\nELOS',type:'requirement',layer:'requirements',x:-800,y:140,w:110,h:40,color:'#f59e0b',desc:'The UAS shall meet an equivalent level of safety to manned GA aircraft. Most vulnerable requirement (3 failure scenarios).'},
-  {id:'r2',label:'REQ-2\nSafe Operation',type:'requirement',layer:'requirements',x:-500,y:-40,w:130,h:44,color:'#f59e0b',desc:'UAS shall be operated safely in the NAS.'},
-  {id:'r2_1',label:'REQ-2.1\nPart 91',type:'requirement',layer:'requirements',x:-550,y:40,w:110,h:40,color:'#f59e0b',desc:'Comply with 14 CFR Part 91.'},
-  {id:'r2_2',label:'REQ-2.2\nOp Certs',type:'requirement',layer:'requirements',x:-550,y:90,w:110,h:40,color:'#f59e0b',desc:'Obtain operating certificates for Part 91 commercial operations.'},
-  {id:'r2_3',label:'REQ-2.3\nIFR Ops',type:'requirement',layer:'requirements',x:-550,y:140,w:110,h:40,color:'#f59e0b',desc:'Flight operations under Instrument Flight Rules. REVIEW: Was only traced to pilot; now also traced to ua_nav and comms.'},
-  {id:'r2_4',label:'REQ-2.4\nSeparation',type:'requirement',layer:'requirements',x:-550,y:190,w:110,h:40,color:'#f59e0b',desc:'Comply with FAA 7110.65 separation standards. REVIEW: Now also traced to ua_transponder and ua_ca.'},
-  {id:'r2_5',label:'REQ-2.5\nQualified Human',type:'requirement',layer:'requirements',x:-550,y:240,w:130,h:40,color:'#f59e0b',desc:'An authorized and qualified human shall be responsible for the safe flight of each UAS.'},
-  {id:'r2_6',label:'REQ-2.6\nContingency',type:'requirement',layer:'requirements',x:-550,y:290,w:120,h:40,color:'#f59e0b',desc:'Operate predictably in emergencies, similar to manned aircraft. REVIEW: Now traced to ua_frs and comms as well.'},
-  {id:'r2_7',label:'REQ-2.7\nFreq Spectrum',type:'requirement',layer:'requirements',x:-550,y:340,w:120,h:40,color:'#f59e0b',desc:'The UAS shall utilize authorized frequency spectrum for C2 and payloads.'},
-  {id:'rd_ca',label:'REQ-CA\nCollision Avoid',type:'requirement',layer:'requirements',x:-700,y:200,w:120,h:40,color:'#f59e0b',desc:'7-function collision avoidance: detect, track, evaluate, prioritize, determine, command, execute.'},
-  {id:'rd_pfc',label:'REQ-PFC\nPositive Flt Ctrl',type:'requirement',layer:'requirements',x:-700,y:260,w:130,h:40,color:'#f59e0b',desc:'Positive flight control throughout planned route. REVIEW: Now also traced to ua_fltctrl and cs.'},
-  {id:'rd_c2s',label:'REQ-C2SEC\nC2 Security',type:'requirement',layer:'requirements',x:-700,y:320,w:120,h:40,color:'#f59e0b',desc:'C2 link and CS security against external interference.'},
-  {id:'rd_hitl',label:'REQ-HITL\nHuman-in-Loop',type:'requirement',layer:'requirements',x:-700,y:380,w:130,h:40,color:'#f59e0b',desc:'Human override authority at all times during flight operations. REVIEW: Now traced to cs. CONFLICT with auto-land on link loss.'},
-  // NEW requirements from review (Sections 4.6 and 5.2)
-  {id:'rd_nav',label:'REQ-NAV\nNavigation',type:'requirement',layer:'requirements',x:-800,y:200,w:120,h:40,color:'#f59e0b',desc:'Supplemental onboard navigation enabling precise navigation regardless of GPS status (Section 5.2). ADDED from review.'},
-  {id:'rd_wx',label:'REQ-WX\nWeather Avoidance',type:'requirement',layer:'requirements',x:-800,y:260,w:130,h:40,color:'#f59e0b',desc:'Weather detection and avoidance ensuring proper separation from adverse weather (Section 5.2). ADDED from review.'},
-  {id:'rd_atccomm',label:'REQ-ATCCOM\nATC Comms',type:'requirement',layer:'requirements',x:-800,y:320,w:130,h:40,color:'#f59e0b',desc:'Direct two-way ATC communications regardless of CS/UA location (Section 5.2). ADDED from review.'},
-  {id:'rd_fltman',label:'REQ-FLTMAN\nFlight Manual',type:'requirement',layer:'requirements',x:-800,y:380,w:130,h:40,color:'#f59e0b',desc:'Conduct all operations per HALE UAS developer flight manual (Section 4.6 criterion #2). ADDED from review.'},
-  {id:'rd_fltplan',label:'REQ-FLTPLN\nFlight Planning',type:'requirement',layer:'requirements',x:-800,y:440,w:130,h:40,color:'#f59e0b',desc:'Provide flight-planning info (comparable to piloted aircraft) to NAS for conflict prediction and scheduling (Section 4.6 criterion #3). ADDED from review.'},
-  {id:'rd_cns',label:'REQ-CNS\nCNS/ATM Perf',type:'requirement',layer:'requirements',x:-700,y:440,w:130,h:40,color:'#f59e0b',desc:'Satisfy required CNS/ATM/pilot performance levels to meet existing separation criteria (Section 4.6 criterion #5). ADDED from review.'},
-  // Functions
-  {id:'f1',label:'F1: Operate\nSafely in NAS',type:'function',layer:'functions',x:-200,y:-200,w:130,h:44,color:'#ef4444',desc:'Top-level function: Operate safely and routinely in the NAS with file-and-fly capability.'},
-  {id:'f1_1',label:'F1.1 Maintain\nAirworthiness',type:'function',layer:'functions',x:-380,y:-130,w:130,h:40,color:'#ef4444',desc:'Maintain aircraft and CS airworthiness per FAA certification.'},
-  {id:'f1_2',label:'F1.2 Navigate\n& Fly IFR',type:'function',layer:'functions',x:-230,y:-130,w:120,h:40,color:'#ef4444',desc:'Navigate along IFR routes, execute flight profile.'},
-  {id:'f1_3',label:'F1.3 Sense\n& Avoid',type:'function',layer:'functions',x:-90,y:-130,w:110,h:40,color:'#ef4444',desc:'Detect, track, and avoid other aircraft at all times.'},
-  {id:'f1_4',label:'F1.4 Comm\nwith ATC',type:'function',layer:'functions',x:40,y:-130,w:110,h:40,color:'#ef4444',desc:'Two-way voice/data communication with ATC facilities.'},
-  {id:'f1_5',label:'F1.5 Manage\nContingencies',type:'function',layer:'functions',x:170,y:-130,w:130,h:40,color:'#ef4444',desc:'Detect anomalies and execute pre-planned emergency procedures.'},
-  {id:'f2',label:'F2: Maintain\nC2 Link',type:'function',layer:'functions',x:100,y:-200,w:120,h:44,color:'#ef4444',desc:'Maintain continuous command and control link between CS and UA.'},
-  {id:'f2_1',label:'F2.1 C2\nUplink/Downlink',type:'function',layer:'functions',x:300,y:-130,w:120,h:40,color:'#ef4444',desc:'Provide reliable C2 data transfer in LOS and OTH modes.'},
-  {id:'f2_2',label:'F2.2 Secure\nC2 Link',type:'function',layer:'functions',x:300,y:-75,w:110,h:40,color:'#ef4444',desc:'Maintain encryption and anti-jamming on C2 link.'},
-  // NEW functions from review
-  {id:'f1_6',label:'F1.6 Weather\nAvoidance',type:'function',layer:'functions',x:-380,y:-75,w:120,h:40,color:'#ef4444',desc:'Detect adverse weather and maintain separation from it (Section 5.2). ADDED from review.'},
-  {id:'f1_7',label:'F1.7 Auto-Land\non Link Loss',type:'function',layer:'functions',x:-230,y:-75,w:130,h:40,color:'#ef4444',desc:'Autonomously land at UAS-designated airport on C2 link loss (Section 5.2). ADDED from review.'},
-  {id:'f1_8',label:'F1.8 Mission\nPlanning',type:'function',layer:'functions',x:-90,y:-75,w:120,h:40,color:'#ef4444',desc:'Develop flight plan meeting user requirements while minimizing ATC impact (Section 4.5.1). ADDED from review.'},
-  // Missions
-  {id:'msn_loiter',label:'Loiter\nMission',type:'mission',layer:'missions',x:-150,y:500,w:120,h:44,color:'#f472b6',desc:'Telecom loiter mission (Section 4.4.1): Station-keep above metro area. Depart Airport A, loiter, return. ~24 hrs. LOS comms sufficient.',props:{altitude:'55,000 ft',duration:'24 hrs',commsMode:'LOS'}},
-  {id:'msn_ptp',label:'Point-to-Point\nMission',type:'mission',layer:'missions',x:60,y:500,w:130,h:44,color:'#f472b6',desc:'Cross-country cargo mission (Section 4.4.2): Transit coast-to-coast. Requires OTH comms. Control handover possible.',props:{altitude:'50,000 ft',duration:'24 hrs',commsMode:'OTH',controlHandover:'possible'}},
-  // 7 Challenge Areas (Section 3.3)
-  {id:'ch1',label:'CH-1 Level\nof Safety',type:'challenge',layer:'challenges',x:700,y:-80,w:120,h:44,color:'#eab308',desc:'Challenge: Define appropriate UAS level of safety — drives airworthiness standards (Section 3.3.1). Requires proposal with adequate rationale.'},
-  {id:'ch2',label:'CH-2 Airworthiness\nStandards',type:'challenge',layer:'challenges',x:700,y:-20,w:140,h:44,color:'#eab308',desc:'Challenge: Minimum airworthiness & operating standards. No standards exist yet for type/airworthiness certification of UAS (Section 3.3.2).'},
-  {id:'ch3',label:'CH-3 Sense\n& Avoid',type:'challenge',layer:'challenges',x:700,y:40,w:120,h:44,color:'#eab308',desc:'Challenge: Obtain agreement on UAS "sense and avoid" definition, functional and performance requirements (Section 3.3.3).'},
-  {id:'ch4',label:'CH-4 Frequency\nSpectrum',type:'challenge',layer:'challenges',x:700,y:100,w:130,h:44,color:'#eab308',desc:'Challenge: No C2 frequencies currently allocated or approved for UAS use. Requires national and international action (Section 3.3.4).'},
-  {id:'ch5',label:'CH-5 Pilot\nQualifications',type:'challenge',layer:'challenges',x:700,y:160,w:130,h:44,color:'#eab308',desc:'Challenge: Appropriate minimum criteria for UAS pilots. Training, currency, testing, and medical standards needed (Section 3.3.5).'},
-  {id:'ch6',label:'CH-6 Separation\nIssues',type:'challenge',layer:'challenges',x:700,y:220,w:120,h:44,color:'#eab308',desc:'Challenge: Appropriate separation standards for UAS — HALE UAS have long flexible wings susceptible to wake turbulence (Section 3.3.6).'},
-  {id:'ch7',label:'CH-7 System\nSafety Analysis',type:'challenge',layer:'challenges',x:700,y:280,w:130,h:44,color:'#eab308',desc:'Challenge: Safety studies needed on individual elements and overall system. Must be compatible with FAA safety management plan (Section 3.3.7).'},
-  // Issue markers (visual indicators on the canvas)
-  {id:'issue_hitl_autoland',label:'CONFLICT\nHITL vs AutoLand',type:'issue',layer:'all',x:-440,y:430,w:140,h:40,color:'#fb7185',desc:'CONFLICT: REQ-HITL requires human override at all times, but Section 5.2 requires auto-land capability for C2 link loss. These requirements are in tension — on link loss, the human cannot be in the loop by definition.'},
-  {id:'issue_c2_single',label:'CONFLICT\nC2 Redundancy',type:'issue',layer:'all',x:300,y:-20,w:140,h:40,color:'#fb7185',desc:'CONFLICT: Section 5.2 acknowledges that a single-channel C2 link may not provide the level of safety required. No explicit redundancy requirement exists in Table 2.'},
-  {id:'issue_autonomy',label:'CONFLICT\nAutonomy vs HITL',type:'issue',layer:'all',x:-440,y:480,w:140,h:40,color:'#fb7185',desc:'CONFLICT: Assumption #25 states "autonomy is a system implementation preference" but REQ-HITL requires human always in loop. Ambiguity about permissible autonomy levels.'},
-  {id:'issue_perf',label:'CONFLICT\nHALE IFR Perf',type:'issue',layer:'all',x:-200,y:430,w:140,h:40,color:'#fb7185',desc:'CONFLICT: Some existing HALE UAS (Pathfinder/Helios at 50 mph, slow turns) may not comply with IFR departure/arrival procedures designed for manned aircraft. CONOPS acknowledges specific routes may be needed (Section 4.5.3).'},
+const ITEMS = [
+  // ===================== SYSTEM =====================
+  {id:'sys',label:'HALE UAS System',type:'system',layer:'physical',x:0,y:0,w:160,h:56,color:'#3b82f6',
+   desc:'Top-level HALE UAS System — integrates all elements for file-and-fly NAS operations.',
+   props:{operatesUnderIFR:'IFR',hasOperatingCerts:true,canFileAndFly:true,hasContingencyPlan:true,hasAutoLand:true},
+   expanded:true,children:['ua','cs','comms','pilot'],
+   pdfQuote:'A HALE UAS certified to fly within controlled airspace would be comprised of three key elements: 1) Unmanned Aircraft, 2) Control Station & Ground Support, and 3) Data & Voice Communication Links',
+   pdfRef:'Section 2.1, p.7',
+   sysml:`part def HALEUASSystem {\n  part aircraft : UnmannedAircraft;\n  part controlStation : ControlStation;\n  part commLinks : DataVoiceCommLinks;\n  part pilotInCommand : Pilot;\n  attribute operatesUnderIFR : Boolean;\n  attribute hasOperatingCerts : Boolean;\n  attribute canFileAndFly : Boolean;\n  attribute hasAutoLand : Boolean;\n  attribute hasContingencyPlan : Boolean;\n}`,
+   solver:'System-level: All 27 Boolean vars + 2 integer constraints must hold.\nVerdict: SATISFIABLE — all requirements met simultaneously.',
+   solverResult:'pass'},
+
+  // ===================== COMPONENTS =====================
+  {id:'ua',label:'Unmanned Aircraft',type:'component',layer:'physical',x:-320,y:150,w:140,h:48,color:'#38bdf8',
+   desc:'The unmanned aircraft element (Section 2.1.1). Includes airframe, avionics, propulsion, collision avoidance, and navigation systems.',
+   props:{maxAltitude:'≥ 40,000 ft MSL',maxEndurance:'≥ 24 hrs',hasCollisionAvoidance:true,hasTransponder:true,hasFlightRecovery:true,hasWeatherDetection:true,hasAutoLand:true,isRegistered:true,hasTypeCert:true,hasAirworthinessCert:true},
+   expanded:false,children:['ua_airframe','ua_prop','ua_fltctrl','ua_ca','ua_nav','ua_wx','ua_frs','ua_transponder','ua_elec','ua_autoland'],
+   pdfQuote:'The HALE UAS does not carry a human pilot and is operated through electronic input controlled by an UAS pilot/operator. The unmanned aircraft element includes the aircraft and onboard avionics hardware and software necessary to ensure safe and reliable operation within the NAS, and mission specific equipment.',
+   pdfRef:'Section 2.1.1, p.8',
+   sysml:`part def UnmannedAircraft {\n  attribute hasAirframe : Boolean;\n  attribute hasPropulsion : Boolean;\n  attribute hasFlightControls : Boolean;\n  attribute hasCollisionAvoidance : Boolean;\n  attribute hasNavigation : Boolean;\n  attribute hasDataComms : Boolean;\n  attribute hasFlightRecoverySystem : Boolean;\n  attribute hasWeatherDetection : Boolean;\n  attribute hasTransponder : Boolean;\n  attribute maxAltitude : AltitudeFt;\n  attribute maxEndurance : DurationHrs;\n  attribute isRegistered : Boolean;\n  attribute hasAirworthinessCert : Boolean;\n  attribute hasTypeCert : Boolean;\n}`,
+   solver:'Variables: aircraft.hasCollisionAvoidance, aircraft.hasFlightRecoverySystem, aircraft.hasTransponder, aircraft.isRegistered, aircraft.hasAirworthinessCert, aircraft.hasTypeCert — ALL REQUIRED (mandatory in minimal model).\naircraft.maxAltitude >= 40000, aircraft.maxEndurance >= 24.',
+   solverResult:'pass'},
+
+  {id:'cs',label:'Control Station',type:'component',layer:'physical',x:-100,y:150,w:130,h:48,color:'#38bdf8',
+   desc:'Control Station & Ground Support element (Section 2.1.2).',
+   props:{isTypeCertified:true,isConfigControlled:true,hasSecurityMeasures:true,supportsMissionPlanning:true,supportsAircraftControl:true,supportsLaunchRecovery:true,supportsMaintenance:true},
+   pdfQuote:'The Control Station (CS) & Ground Support element includes the necessary resources to perform the following functions: Mission Planning, Launch and Recovery, Aircraft Control and Operations, Support and Training, Maintenance and Logistics.',
+   pdfRef:'Section 2.1.2, p.8',
+   sysml:`part def ControlStation {\n  attribute isTypeCertified : Boolean;\n  attribute isConfigControlled : Boolean;\n  attribute hasSecurityMeasures : Boolean;\n  attribute supportsMissionPlanning : Boolean;\n  attribute supportsAircraftControl : Boolean;\n  attribute supportsLaunchRecovery : Boolean;\n  attribute supportsMaintenance : Boolean;\n}`,
+   solver:'Variables: cs.isTypeCertified, cs.isConfigControlled, cs.hasSecurityMeasures — ALL REQUIRED.\ncs.isTypeCertified required by REQ-1, REQ-CS-CERT.\ncs.isConfigControlled required by REQ-CS-CERT.',
+   solverResult:'pass'},
+
+  {id:'comms',label:'Data & Voice Comm Links',type:'component',layer:'physical',x:130,y:150,w:140,h:48,color:'#38bdf8',
+   desc:'Data and Voice Communication Links element (Section 2.1.3).',
+   props:{supportsLOS:true,supportsOTH:true,supportsVoiceATC:true,supportsC2Uplink:true,supportsC2Downlink:true,usesAuthSpectrum:true,isHighlyAvailable:true,isReliable:true,isSecure:true},
+   expanded:false,children:['comms_los','comms_oth','comms_satcom','comms_relay','comms_landline'],
+   pdfQuote:'The Data and Voice Communication Links element provides the means for command and control data uplink and downlink capability when the UAS is either within line-of-sight (LOS) or over-the-horizon (OTH) from the CS, and voice communications between the UAS pilot and Air Traffic Control (ATC). This element should be highly available and reliable to ensure safe, secure, and efficient UAS operations.',
+   pdfRef:'Section 2.1.3, p.8',
+   sysml:`part def DataVoiceCommLinks {\n  attribute supportsLOS : Boolean;\n  attribute supportsOTH : Boolean;\n  attribute supportsVoiceATC : Boolean;\n  attribute supportsC2Uplink : Boolean;\n  attribute supportsC2Downlink : Boolean;\n  attribute usesAuthorizedSpectrum : Boolean;\n  attribute isHighlyAvailable : Boolean;\n  attribute isReliable : Boolean;\n  attribute isSecure : Boolean;\n}`,
+   solver:'9 variables. 7 are REQUIRED. 2 OPTIONAL (supportsLOS, supportsOTH — only one needed due to OR in REQ-PFC).\nScenario: No LOS AND no OTH → FAIL (violates REQ-PFC).',
+   solverResult:'pass'},
+
+  {id:'pilot',label:'Pilot-in-Command',type:'component',layer:'physical',x:350,y:150,w:120,h:48,color:'#38bdf8',
+   desc:'Certificated UAS pilot/operator (Section 3.1.3).',
+   props:{hasPilotCert:true,hasInstrumentRating:true,hasMedicalCert:true,meetsCurrency:true,isCertifiedPart61:true},
+   pdfQuote:'In the future regulatory environment it is expected that HALE UAS pilots will need to meet very similar qualifications as pilots of manned aircraft... it is appropriate for HALE UAS pilots to possess a current pilot certificate and instrument rating or the equivalent.',
+   pdfRef:'Section 3.1.3, p.11',
+   sysml:`part def Pilot {\n  attribute hasPilotCertificate : Boolean;\n  attribute hasInstrumentRating : Boolean;\n  attribute hasMedicalCert : Boolean;\n  attribute meetsCurrencyReqs : Boolean;\n  attribute isCertifiedPart61 : Boolean;\n}`,
+   solver:'All 5 pilot variables REQUIRED.\npilot.hasPilotCertificate required by REQ-1.3, REQ-2.5, REQ-HITL.\npilot.hasInstrumentRating required by REQ-2.3, REQ-2.5.\nScenario: Pilot not instrument rated → FAIL (REQ-2.3, REQ-2.5).',
+   solverResult:'pass'},
+
+  // ===================== UA SUBSYSTEMS =====================
+  {id:'ua_airframe',label:'Airframe & Structures',type:'subsystem',layer:'physical',x:-520,y:310,w:110,h:40,color:'#10b981',
+   desc:'Aircraft airframe and structural components.',
+   pdfQuote:'Components in the aircraft include, but are not limited to: Airframe and Structures',
+   pdfRef:'Section 2.1.1, p.8',sysml:'// Part of UnmannedAircraft\nattribute hasAirframe : Boolean;',solver:'Not directly constrained in solver. Covered by aircraft-level airworthiness.',solverResult:'na'},
+
+  {id:'ua_prop',label:'Propulsion',type:'subsystem',layer:'physical',x:-400,y:310,w:100,h:40,color:'#10b981',
+   desc:'Propulsion system (varies: solar, turboprop, jet).',
+   pdfQuote:'Propulsion [listed as UA component]... Pathfinder Plus and Helios are solar powered... Predator B and Altair maneuvering capabilities are similar to a manned aircraft... Global Hawk climb and cruise speeds are similar to those of commercial transport aircraft.',
+   pdfRef:'Section 2.1.1 & 2.2, pp.8-9',sysml:'// Part of UnmannedAircraft\nattribute hasPropulsion : Boolean;',solver:'Not directly constrained. Covered by aircraft airworthiness.',solverResult:'na'},
+
+  {id:'ua_fltctrl',label:'Flight Controls',type:'subsystem',layer:'physical',x:-290,y:310,w:100,h:40,color:'#10b981',
+   desc:'Flight Management Control System (FMCS).',
+   pdfQuote:'Flight Controls [listed as UA component]... Mission management and aircraft flight control system functionality (i.e., level of sophistication, autonomy) will be aircraft dependent.',
+   pdfRef:'Section 2.1.1, p.8 & Section 5.2, p.28',sysml:'// Part of UnmannedAircraft\nattribute hasFlightControls : Boolean;',solver:'Indirectly required via REQ-PFC (positive flight control). Added trace in review.',solverResult:'na'},
+
+  {id:'ua_ca',label:'Collision Avoidance',type:'subsystem',layer:'physical',x:-180,y:310,w:110,h:40,color:'#10b981',
+   desc:'Sense & Avoid system — 7 functions (Section 5.2).',
+   pdfQuote:'Collision avoidance systems enable HALE UAS to sense and avoid other air traffic... UAS must be able to perform seven basic functions: 1) detect all cooperative and non-cooperative aircraft, 2) track the aircraft, 3) evaluate collision potential, 4) prioritize collision threats, 5) determine an appropriate avoidance maneuver, 6) command the maneuver, and 7) execute the maneuver.',
+   pdfRef:'Section 5.2, p.27',
+   sysml:'// Mapped to:\nattribute hasCollisionAvoidance : Boolean;',
+   solver:'aircraft.hasCollisionAvoidance = REQUIRED\nForced by: REQ-1.3, REQ-2.4, REQ-CA, REQ-SAA\nScenario: No collision avoidance → FAIL (4 requirements violated)',
+   solverResult:'pass'},
+
+  {id:'ua_nav',label:'Navigation',type:'subsystem',layer:'physical',x:-520,y:370,w:100,h:40,color:'#10b981',
+   desc:'Navigation systems including GPS, WAAS, LAAS.',
+   pdfQuote:'Navigation — Supplemental onboard navigation equipment that allow the precise navigation of the UAS regardless of the status of the global positioning satellite (GPS) system may be needed.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Part of UnmannedAircraft\nattribute hasNavigation : Boolean;',solver:'Traced to REQ-NAV (added in review). Not in original solver Boolean set.',solverResult:'na'},
+
+  {id:'ua_wx',label:'Weather Detection',type:'subsystem',layer:'physical',x:-410,y:370,w:110,h:40,color:'#10b981',
+   desc:'Weather detection & avoidance equipment.',
+   pdfQuote:'Weather Detection & Avoidance — Weather detection and avoidance equipment that provides a way to detect weather and ensure that the UAS maintains proper separation.',
+   pdfRef:'Section 5.2, p.28',sysml:'// Part of UnmannedAircraft\nattribute hasWeatherDetection : Boolean;',solver:'Traced to REQ-WX (added in review). Not in original solver Boolean set.',solverResult:'na'},
+
+  {id:'ua_frs',label:'Flight Recovery System',type:'subsystem',layer:'physical',x:-290,y:370,w:120,h:40,color:'#10b981',
+   desc:'Flight Recovery/Termination system for contingencies.',
+   pdfQuote:'Contingency Management — Equipment and procedures providing the necessary reliability for safely operating within the NAS during anomalous conditions. This includes... flight recovery system and procedures that reduce the likelihood of a loss-of-life or damage to property when a landing cannot be performed at an UAS designated airfield.',
+   pdfRef:'Section 5.2, p.28',
+   sysml:'// Mapped to:\nattribute hasFlightRecoverySystem : Boolean;',
+   solver:'aircraft.hasFlightRecoverySystem = REQUIRED\nForced by: REQ-2.6 (Predictable contingency behavior)',
+   solverResult:'pass'},
+
+  {id:'ua_transponder',label:'ATC Transponder',type:'subsystem',layer:'physical',x:-160,y:370,w:110,h:40,color:'#10b981',
+   desc:'ATC radar transponder for cooperative surveillance.',
+   pdfQuote:'The basic operating equipment requirements applied to manned aircraft (position and strobe lights, ATC radar transponder, altimeter, and navigation equipment) are applicable to HALE UAS.',
+   pdfRef:'Section 5.2, p.27',
+   sysml:'// Mapped to:\nattribute hasTransponder : Boolean;',
+   solver:'aircraft.hasTransponder = REQUIRED\nForced by: REQ-2.4 (Separation standards)\nScenario: No transponder → FAIL (REQ-2.4)',
+   solverResult:'pass'},
+
+  {id:'ua_elec',label:'Electrical System',type:'subsystem',layer:'physical',x:-520,y:430,w:110,h:40,color:'#10b981',
+   desc:'Electrical system including position and strobe lights.',
+   pdfQuote:'The basic operating equipment requirements applied to manned aircraft (position and strobe lights, ATC radar transponder, altimeter, and navigation equipment) are applicable to HALE UAS.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Part of UnmannedAircraft\nattribute hasPositionLights : Boolean;\nattribute hasStrobeLights : Boolean;',solver:'Not directly constrained in solver. Covered by airworthiness.',solverResult:'na'},
+
+  {id:'ua_autoland',label:'Auto-Land System',type:'subsystem',layer:'physical',x:-400,y:430,w:110,h:40,color:'#10b981',
+   desc:'Auto-land for autonomous landing on C2 link loss. CONFLICTS with REQ-HITL.',
+   pdfQuote:'Auto-Land — Auto-land systems may be required to enabling the UAS to automatically land at UAS designated airports in the event of a loss-link contingency.',
+   pdfRef:'Section 5.2, p.27',
+   sysml:'// Mapped to:\nattribute hasAutoLand : Boolean;',
+   solver:'sys.hasAutoLand = REQUIRED\nForced by: REQ-2.6 (Predictable contingency behavior)\nCONFLICT: Operates without human — contradicts REQ-HITL.',
+   solverResult:'pass'},
+
+  // ===================== COMMS SUBSYSTEMS =====================
+  {id:'comms_los',label:'LOS Comms',type:'subsystem',layer:'physical',x:60,y:310,w:90,h:40,color:'#10b981',
+   desc:'Line-of-Sight communication links.',
+   pdfQuote:'LOS & OTH Communications [listed as Comms component]',
+   pdfRef:'Section 2.1.3, p.8',sysml:'// Mapped to:\nattribute supportsLOS : Boolean;',
+   solver:'comms.supportsLOS = OPTIONAL\n(Only one of LOS/OTH needed for REQ-PFC)',solverResult:'pass'},
+
+  {id:'comms_oth',label:'OTH Comms',type:'subsystem',layer:'physical',x:160,y:310,w:90,h:40,color:'#10b981',
+   desc:'Over-the-Horizon communication links.',
+   pdfQuote:'LOS & OTH Communications [listed as Comms component]... over-the-horizon (OTH) from the CS',
+   pdfRef:'Section 2.1.3, p.8',sysml:'// Mapped to:\nattribute supportsOTH : Boolean;',
+   solver:'comms.supportsOTH = OPTIONAL\n(Only one of LOS/OTH needed for REQ-PFC)',solverResult:'pass'},
+
+  {id:'comms_satcom',label:'Satellite Comm',type:'subsystem',layer:'physical',x:60,y:370,w:100,h:40,color:'#10b981',
+   desc:'Satellite communication services for OTH C2 relay.',
+   pdfQuote:'Satellite Communication services [listed as Comms component]... The OTH link could be through a satellite, airborne relay, or a series of ground-based relay towers.',
+   pdfRef:'Section 2.1.3, p.8 & Section 5.2, p.27',sysml:'// Sub-element of DataVoiceCommLinks',solver:'Covered by comms.supportsOTH.',solverResult:'na'},
+
+  {id:'comms_relay',label:'Airborne/Ground Relay',type:'subsystem',layer:'physical',x:170,y:370,w:110,h:40,color:'#10b981',
+   desc:'Airborne or ground-based relay communication services.',
+   pdfQuote:'Airborne Relay Communication services [listed as Comms component]',
+   pdfRef:'Section 2.1.3, p.8',sysml:'// Sub-element of DataVoiceCommLinks',solver:'Covered by comms.supportsOTH.',solverResult:'na'},
+
+  {id:'comms_landline',label:'Landline Comm',type:'subsystem',layer:'physical',x:110,y:430,w:110,h:40,color:'#10b981',
+   desc:'Landline — emergency-only direct phone to ATC center controller.',
+   pdfQuote:'UAS operators will maintain contact with the air route traffic control centers (ARTCC) using common VHF/UHF communications frequencies or a direct telephone/land line (not a preferred method, emergency use only) to the center controller.',
+   pdfRef:'Section 4.5.4, p.24',sysml:'// Sub-element of DataVoiceCommLinks\n// Emergency backup only',solver:'Not in solver — emergency backup method.',solverResult:'na'},
+
+  // ===================== EXTERNAL ENTITIES =====================
+  {id:'ext_faa',label:'FAA / Regulators',type:'external',layer:'physical',x:500,y:-100,w:120,h:44,color:'#a78bfa',
+   desc:'Federal Aviation Administration.',
+   pdfQuote:'The FAA has the responsibility for maintaining safety in the NAS. The FAA issues a series of FAR under Title 14, Code of Federal Regulations (14 CFR), to define the applicable aircraft certification standards, pilot requirements, and general operating and flight rules.',
+   pdfRef:'Section 3.1, p.11',sysml:'// External entity — not modeled as part def\n// Interface: certification, COA issuance',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'ext_atc_dep',label:'Local ATC (Departure)',type:'external',layer:'physical',x:440,y:40,w:120,h:44,color:'#a78bfa',
+   desc:'Local ATC at departure airport.',
+   pdfQuote:'Local ATC at Departure Airport — Provides Clearance (route and altitude), Ground (taxi clearance), Tower (take-off clearance), and Automatic Terminal Information Service (ATIS).',
+   pdfRef:'Section 4.3.2, p.19',sysml:'// External interface',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'ext_tracon',label:'TRACON / ARTCC',type:'external',layer:'physical',x:530,y:120,w:120,h:44,color:'#a78bfa',
+   desc:'Departure, En-Route, and Approach Control.',
+   pdfQuote:'TRACON / ARTCC — Provides Departure Control, Enroute Control, and Approach Control.',
+   pdfRef:'Section 4.3.2, p.19',sysml:'// External interface',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'ext_atc_dest',label:'Local ATC (Destination)',type:'external',layer:'physical',x:530,y:200,w:120,h:44,color:'#a78bfa',
+   desc:'Local ATC at destination airport.',
+   pdfQuote:'Local ATC at Destination Airport — Provides ATIS information regarding the local weather and runway usage, Tower (clearance to land), and Ground (taxi clearance).',
+   pdfRef:'Section 4.3.2, p.19',sysml:'// External interface',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'ext_fss',label:'Flight Service Station',type:'external',layer:'physical',x:440,y:280,w:120,h:44,color:'#a78bfa',
+   desc:'Weather briefings, NOTAMs, flight plan filing.',
+   pdfQuote:'Flight Service Station - Provides weather briefings, Notice to Airman (NOTAM) announcements, and Flight Plan filing.',
+   pdfRef:'Section 4.3.1, p.18',sysml:'// External interface',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'ext_airport',label:'Airport Management',type:'external',layer:'physical',x:530,y:360,w:120,h:44,color:'#a78bfa',
+   desc:'UAS-designated airport infrastructure.',
+   pdfQuote:'Airport Management - Provides aircraft siting, safety, security, environmental, and logistics services... HALE UAS will operate out of UAS capable airports with the necessary infrastructure, equipment, runway, and trained personnel.',
+   pdfRef:'Section 4.3.1, p.18 & Section 5.3, p.28',sysml:'// External interface',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'ext_other_ac',label:'Other Aircraft',type:'external',layer:'physical',x:350,y:-80,w:110,h:44,color:'#a78bfa',
+   desc:'Cooperative and non-cooperative aircraft in the NAS.',
+   pdfQuote:'The UAS must safely interface with other manned and unmanned aircraft, both on the ground and in the air... The other aircraft operating within the NAS could be cooperative or non-cooperative depending upon whether or not they operate using a transponder.',
+   pdfRef:'Section 4.3.2, p.19',sysml:'// External entity\n// Drives collision avoidance requirements',solver:'Not in solver scope. Drives REQ-CA, REQ-SAA.',solverResult:'na'},
+
+  {id:'ext_fcc',label:'FCC / ITU',type:'external',layer:'physical',x:350,y:380,w:100,h:44,color:'#a78bfa',
+   desc:'Frequency spectrum authority.',
+   pdfQuote:'To date, no frequencies in the electromagnetic spectrum have been allocated or approved for UAS command/control use... Resolution of this challenge will require national attention and international action to obtain the use of appropriate frequency bands.',
+   pdfRef:'Section 3.3.4, p.15',sysml:'// External entity — spectrum authority',solver:'Not in solver scope. Drives REQ-2.7.',solverResult:'na'},
+
+  {id:'ext_icao',label:'ICAO',type:'external',layer:'physical',x:500,y:440,w:100,h:44,color:'#a78bfa',
+   desc:'International Civil Aviation Organization.',
+   pdfQuote:'ICAO requirements should also be considered and complied with to the maximum practicable extent.',
+   pdfRef:'Section 5.4, p.28',sysml:'// External entity\n// International compliance',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'role_opsmgr',label:'Ops Manager',type:'external',layer:'physical',x:210,y:-80,w:110,h:44,color:'#a78bfa',
+   desc:'Operations Manager — develops mission/flight plan.',
+   pdfQuote:'Ops Manager: Develop mission/flight plan meeting user/customer requirements... Monitor mission progress... Ascertain mission success.',
+   pdfRef:'Table 3, p.20',sysml:'// Stakeholder role from Table 3',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'role_ground',label:'Ground Crew',type:'external',layer:'physical',x:210,y:-20,w:110,h:44,color:'#a78bfa',
+   desc:'Ground Crew — preflight, tow/taxi, launch/recovery.',
+   pdfQuote:'Ground Crew: Site aircraft for preflight... Perform aircraft preflight... Tow/taxi aircraft to runway... Park and secure aircraft.',
+   pdfRef:'Table 3, p.20',sysml:'// Stakeholder role from Table 3',solver:'Not in solver scope.',solverResult:'na'},
+
+  {id:'role_payload',label:'Payload Ops',type:'external',layer:'physical',x:210,y:40,w:110,h:44,color:'#a78bfa',
+   desc:'Payload Operators — operate payload systems.',
+   pdfQuote:'Payload Ops: Participate in flight plan development... Preflight payload systems... Operate payload systems... Shutdown payload systems.',
+   pdfRef:'Table 3, p.20',sysml:'// Stakeholder role from Table 3',solver:'Not in solver scope.',solverResult:'na'},
+
+  // ===================== REQUIREMENTS =====================
+  {id:'r0',label:'REQ-0: Overall',type:'requirement',layer:'requirements',x:-600,y:-120,w:110,h:44,color:'#f59e0b',
+   desc:'UAS shall operate safely and routinely in the NAS.',
+   pdfQuote:'Overall Requirement: UAS shall operate safely and routinely in the NAS.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-0> OverallRequirement {\n  doc /* UAS shall operate safely and routinely in the NAS. */\n  subject uas : HALEUASSystem;\n}`,
+   solver:'Top-level parent. Satisfied when all child requirements are satisfied.\nVerdict: SATISFIABLE.',solverResult:'pass'},
+
+  {id:'r1',label:'REQ-1: Airworthiness',type:'requirement',layer:'requirements',x:-700,y:-40,w:120,h:44,color:'#f59e0b',
+   desc:'UAS shall be airworthy.',
+   pdfQuote:'1. UAS shall be airworthy.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-1> AirworthinessReq {\n  doc /* UAS shall be airworthy. */\n  require constraint {\n    uas.aircraft.hasAirworthinessCert &&\n    uas.aircraft.hasTypeCert &&\n    uas.controlStation.isTypeCertified\n  }\n}`,
+   solver:"Constraint: aircraft.hasAirworthinessCert AND aircraft.hasTypeCert AND cs.isTypeCertified\nAll 3 variables REQUIRED.\nScenario 'No airworthiness cert' → FAIL.\nScenario 'CS not certified' → FAIL.",
+   solverResult:'pass'},
+
+  {id:'r1_1',label:'REQ-1.1: Registration',type:'requirement',layer:'requirements',x:-800,y:40,w:120,h:40,color:'#f59e0b',
+   desc:'The UAS shall be registered with the FAA.',
+   pdfQuote:'1.1 The UAS shall be registered with the FAA.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-1.1> RegistrationReq {\n  require constraint { uas.aircraft.isRegistered }\n}`,
+   solver:'Constraint: aircraft.isRegistered = True\nVariable REQUIRED.',solverResult:'pass'},
+
+  {id:'r1_2',label:'REQ-1.2: Airworthiness Cert',type:'requirement',layer:'requirements',x:-800,y:90,w:130,h:40,color:'#f59e0b',
+   desc:'The UAS shall obtain and maintain an airworthiness certificate.',
+   pdfQuote:'1.2 The UAS shall obtain and maintain an airworthiness certificate.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-1.2> AirworthinessCertReq {\n  require constraint { uas.aircraft.hasAirworthinessCert }\n}`,
+   solver:'Constraint: aircraft.hasAirworthinessCert = True\nREDUNDANT — implied by REQ-1.',solverResult:'pass'},
+
+  {id:'r1_3',label:'REQ-1.3: ELOS',type:'requirement',layer:'requirements',x:-800,y:140,w:110,h:40,color:'#f59e0b',
+   desc:'Equivalent level of safety to manned GA aircraft.',
+   pdfQuote:'1.3 The UAS shall meet an equivalent level of safety to that of a manned general aviation aircraft.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-1.3> ELOSReq {\n  require constraint {\n    uas.aircraft.hasAirworthinessCert &&\n    uas.pilotInCommand.hasPilotCertificate &&\n    uas.operatesUnderIFR &&\n    uas.aircraft.hasCollisionAvoidance &&\n    uas.commLinks.isHighlyAvailable &&\n    uas.commLinks.isReliable\n  }\n}`,
+   solver:'6-variable conjunction. All REQUIRED.\nMost vulnerable req (3 failure scenarios):\n- No collision avoidance → FAIL\n- No airworthiness cert → FAIL\n- Comms unreliable → FAIL',solverResult:'pass'},
+
+  {id:'r2',label:'REQ-2: Safe Operation',type:'requirement',layer:'requirements',x:-500,y:-40,w:130,h:44,color:'#f59e0b',
+   desc:'UAS shall be operated safely in the NAS.',
+   pdfQuote:'2. UAS shall be operated safely in the NAS.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2> SafeOperationReq {\n  doc /* UAS shall be operated safely in the NAS. */\n  subject uas : HALEUASSystem;\n}`,
+   solver:'Parent requirement. Satisfied when all 2.x children met.',solverResult:'pass'},
+
+  {id:'r2_1',label:'REQ-2.1: Part 91',type:'requirement',layer:'requirements',x:-550,y:40,w:110,h:40,color:'#f59e0b',
+   desc:'Comply with 14 CFR Part 91.',
+   pdfQuote:'2.1 UAS operations shall comply with all applicable requirements in 14 CFR Part 91 — General Operating and Flight Rules.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.1> Part91ComplianceReq {\n  require constraint {\n    uas.operatesUnderIFR && uas.hasOperatingCerts\n  }\n}`,
+   solver:'Constraint: sys.operatesUnderIFR AND sys.hasOperatingCerts\nREDUNDANT — implied by REQ-1.3 + REQ-2.2.',solverResult:'pass'},
+
+  {id:'r2_2',label:'REQ-2.2: Op Certs',type:'requirement',layer:'requirements',x:-550,y:90,w:110,h:40,color:'#f59e0b',
+   desc:'Obtain operating certificates for Part 91 commercial ops.',
+   pdfQuote:'2.2 The UAS shall obtain and maintain the necessary operating certificates for 14 CFR Part 91 commercial operations (maintenance, training, etc.).',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.2> OperatingCertsReq {\n  require constraint { uas.hasOperatingCerts }\n}`,
+   solver:'Constraint: sys.hasOperatingCerts = True\nREDUNDANT — implied by REQ-2.1.',solverResult:'pass'},
+
+  {id:'r2_3',label:'REQ-2.3: IFR Ops',type:'requirement',layer:'requirements',x:-550,y:140,w:110,h:40,color:'#f59e0b',
+   desc:'Flight operations under IFR.',
+   pdfQuote:'2.3 UAS flight operations shall be conducted under Instrument Flight Rules (IFR).',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.3> IFROperationsReq {\n  require constraint {\n    uas.operatesUnderIFR &&\n    uas.pilotInCommand.hasInstrumentRating\n  }\n}`,
+   solver:'Constraint: sys.operatesUnderIFR AND pilot.hasInstrumentRating\nREDUNDANT — implied by REQ-1.3 + REQ-2.5.\nScenario: Pilot not instrument rated → FAIL.',solverResult:'pass'},
+
+  {id:'r2_4',label:'REQ-2.4: Separation',type:'requirement',layer:'requirements',x:-550,y:190,w:110,h:40,color:'#f59e0b',
+   desc:'Comply with FAA 7110.65 separation standards.',
+   pdfQuote:'2.4 The UAS shall operate under the same separation standards required for manned aircraft per FAA 7110.65.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.4> SeparationStandardsReq {\n  require constraint {\n    uas.aircraft.hasTransponder &&\n    uas.aircraft.hasCollisionAvoidance &&\n    uas.commLinks.supportsVoiceATC\n  }\n}`,
+   solver:'3-variable conjunction. All REQUIRED.\nScenario: No transponder → FAIL.',solverResult:'pass'},
+
+  {id:'r2_5',label:'REQ-2.5: Qualified Human',type:'requirement',layer:'requirements',x:-550,y:240,w:130,h:40,color:'#f59e0b',
+   desc:'Authorized qualified human responsible for safe flight.',
+   pdfQuote:'2.5 An authorized and qualified human shall be responsible for the safe flight of each UAS.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.5> QualifiedHumanReq {\n  require constraint {\n    uas.pilotInCommand.hasPilotCertificate &&\n    uas.pilotInCommand.hasInstrumentRating &&\n    uas.pilotInCommand.isCertifiedPart61 &&\n    uas.pilotInCommand.hasMedicalCert &&\n    uas.pilotInCommand.meetsCurrencyReqs\n  }\n}`,
+   solver:'5-variable conjunction. All REQUIRED.\nStrongest pilot requirement — forces all 5 pilot vars.',solverResult:'pass'},
+
+  {id:'r2_6',label:'REQ-2.6: Contingency',type:'requirement',layer:'requirements',x:-550,y:290,w:120,h:40,color:'#f59e0b',
+   desc:'Predictable emergency behavior.',
+   pdfQuote:'2.6 The UAS shall operate in a predictable manner similar to that of manned aircraft in the event of an emergency or other contingency situation.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.6> ContingencyBehaviorReq {\n  require constraint {\n    uas.hasContingencyPlan &&\n    uas.hasAutoLand &&\n    uas.aircraft.hasFlightRecoverySystem\n  }\n}`,
+   solver:'3-variable conjunction. All REQUIRED.\nScenario: No auto-land → FAIL.\nScenario: No contingency plan → FAIL.',solverResult:'pass'},
+
+  {id:'r2_7',label:'REQ-2.7: Freq Spectrum',type:'requirement',layer:'requirements',x:-550,y:340,w:120,h:40,color:'#f59e0b',
+   desc:'Use authorized frequency spectrum.',
+   pdfQuote:'2.7 The UAS shall utilize authorized frequency spectrum for command, control, communications and payloads.',
+   pdfRef:'Table 2, p.13',
+   sysml:`requirement def <REQ-2.7> FrequencySpectrumReq {\n  require constraint {\n    uas.commLinks.usesAuthorizedSpectrum\n  }\n}`,
+   solver:'Constraint: comms.usesAuthorizedSpectrum = True\nREQUIRED. Scenario: No authorized spectrum → FAIL.',solverResult:'pass'},
+
+  {id:'rd_ca',label:'REQ-CA: Collision Avoidance',type:'requirement',layer:'requirements',x:-700,y:200,w:120,h:40,color:'#f59e0b',
+   desc:'7-function collision avoidance.',
+   pdfQuote:'Collision avoidance systems enable HALE UAS to sense and avoid other air traffic... UAS must be able to perform seven basic functions.',
+   pdfRef:'Section 5.2, p.27',
+   sysml:`requirement def <REQ-CA> CollisionAvoidanceFunctionsReq {\n  require constraint {\n    uas.aircraft.hasCollisionAvoidance\n  }\n}`,
+   solver:'Constraint: aircraft.hasCollisionAvoidance = True\nREDUNDANT — implied by REQ-1.3, REQ-2.4.',solverResult:'pass'},
+
+  {id:'rd_pfc',label:'REQ-PFC: Positive Flight Control',type:'requirement',layer:'requirements',x:-700,y:260,w:130,h:40,color:'#f59e0b',
+   desc:'Positive flight control throughout planned route.',
+   pdfQuote:'Ensure that positive flight control will be available throughout the planned route when planning the flight operation.',
+   pdfRef:'Section 4.6, p.24, criterion #1',
+   sysml:`requirement def <REQ-PFC> PositiveFlightControlReq {\n  require constraint {\n    (uas.commLinks.supportsLOS ||\n     uas.commLinks.supportsOTH) &&\n    uas.commLinks.supportsC2Uplink &&\n    uas.commLinks.supportsC2Downlink\n  }\n}`,
+   solver:'Only requirement with OR: (LOS || OTH) AND C2Up AND C2Down\nThis is why LOS and OTH are the 2 OPTIONAL variables.\nScenario: No LOS AND no OTH → FAIL.\nScenario: Loss of C2 uplink → FAIL.',solverResult:'pass'},
+
+  {id:'rd_c2s',label:'REQ-C2SEC: C2 Security',type:'requirement',layer:'requirements',x:-700,y:320,w:120,h:40,color:'#f59e0b',
+   desc:'C2 link and CS security.',
+   pdfQuote:'The security of the control station and the command and control link will be maintained to prevent external interference with UAS operations.',
+   pdfRef:'Section 4.2, p.17 & Section 5.2, p.27',
+   sysml:`requirement def <REQ-C2SEC> C2LinkSecurityReq {\n  require constraint {\n    uas.commLinks.isSecure &&\n    uas.controlStation.hasSecurityMeasures\n  }\n}`,
+   solver:'2-variable conjunction. Both REQUIRED.\nScenario: C2 link not secure → FAIL.',solverResult:'pass'},
+
+  {id:'rd_hitl',label:'REQ-HITL: Human-in-Loop',type:'requirement',layer:'requirements',x:-700,y:380,w:130,h:40,color:'#f59e0b',
+   desc:'Human override authority at all times. CONFLICT with auto-land.',
+   pdfQuote:'An operator will be in/on the loop during normal UAS operations — A human will always have control or override authority during normal UAS flight operations. Even when the UAS is operating autonomously, a human will have the ability to take control of the UAS.',
+   pdfRef:'Assumption #21, p.4',
+   sysml:`requirement def <REQ-HITL> HumanInTheLoopReq {\n  require constraint {\n    uas.commLinks.supportsC2Uplink &&\n    uas.pilotInCommand.hasPilotCertificate\n  }\n}`,
+   solver:'2-variable conjunction.\nREDUNDANT — implied by REQ-PFC + REQ-2.5.\nCONFLICT: On C2 link loss, human cannot be in loop,\nbut REQ-2.6 requires auto-land (autonomous action).',solverResult:'pass'},
+
+  {id:'rd_nav',label:'REQ-NAV: Navigation',type:'requirement',layer:'requirements',x:-800,y:200,w:120,h:40,color:'#f59e0b',
+   desc:'Supplemental navigation regardless of GPS status. ADDED in review.',
+   pdfQuote:'Navigation — Supplemental onboard navigation equipment that allow the precise navigation of the UAS regardless of the status of the global positioning satellite (GPS) system may be needed.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Added in review — not in original SysML spec\n// Would be:\nrequirement def <REQ-NAV> NavigationReq {\n  require constraint { uas.aircraft.hasNavigation }\n}',
+   solver:'Not in original solver. Would add: aircraft.hasNavigation = REQUIRED.',solverResult:'na'},
+
+  {id:'rd_wx',label:'REQ-WX: Weather Avoidance',type:'requirement',layer:'requirements',x:-800,y:260,w:130,h:40,color:'#f59e0b',
+   desc:'Weather detection and avoidance. ADDED in review.',
+   pdfQuote:'Weather Detection & Avoidance — Weather detection and avoidance equipment that provides a way to detect weather and ensure that the UAS maintains proper separation.',
+   pdfRef:'Section 5.2, p.28',sysml:'// Added in review\nrequirement def <REQ-WX> WeatherAvoidanceReq {\n  require constraint { uas.aircraft.hasWeatherDetection }\n}',
+   solver:'Not in original solver. Would add: aircraft.hasWeatherDetection = REQUIRED.',solverResult:'na'},
+
+  {id:'rd_atccomm',label:'REQ-ATCCOM: ATC Comms',type:'requirement',layer:'requirements',x:-800,y:320,w:130,h:40,color:'#f59e0b',
+   desc:'Direct two-way ATC communications. ADDED in review.',
+   pdfQuote:'ATC Communication equipment need to provide direct two-way communications between the UAS pilot/operator and the appropriate ATC facility regardless of the location of the control station or the UAS.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Added in review\nrequirement def <REQ-ATCCOM> ATCCommReq {\n  require constraint { uas.commLinks.supportsVoiceATC }\n}',
+   solver:'Not in original solver. Would add: comms.supportsVoiceATC (already REQUIRED by REQ-2.4).',solverResult:'na'},
+
+  {id:'rd_fltman',label:'REQ-FLTMAN: Flight Manual',type:'requirement',layer:'requirements',x:-800,y:380,w:130,h:40,color:'#f59e0b',
+   desc:'Operations per developer flight manual. ADDED in review.',
+   pdfQuote:'Conduct all normal and abnormal operations in accordance with the guidelines contained in a flight manual created by the HALE UAS developer.',
+   pdfRef:'Section 4.6, p.24, criterion #2',sysml:'// Added in review\n// Procedural requirement — no Boolean constraint',
+   solver:'Procedural — not encodable as Boolean constraint.',solverResult:'na'},
+
+  {id:'rd_fltplan',label:'REQ-FLTPLN: Flight Planning',type:'requirement',layer:'requirements',x:-800,y:440,w:130,h:40,color:'#f59e0b',
+   desc:'Flight planning info to NAS. ADDED in review.',
+   pdfQuote:'Provide flight-planning information (comparable to that used for piloted aircraft) to the NAS information system for traffic conflict prediction and metering/scheduling purposes.',
+   pdfRef:'Section 4.6, p.24, criterion #3',sysml:'// Added in review\n// Procedural requirement',
+   solver:'Procedural — not encodable as Boolean constraint.',solverResult:'na'},
+
+  {id:'rd_cns',label:'REQ-CNS: CNS/ATM Performance',type:'requirement',layer:'requirements',x:-700,y:440,w:130,h:40,color:'#f59e0b',
+   desc:'CNS/ATM/pilot performance levels. ADDED in review.',
+   pdfQuote:'Satisfy the required levels of CNS/ATM/pilot performance to meet existing separation criteria.',
+   pdfRef:'Section 4.6, p.25, criterion #5',sysml:'// Added in review\n// Performance requirement',
+   solver:'Performance-based — partially covered by REQ-2.4, REQ-2.5.',solverResult:'na'},
+
+  // ===================== FUNCTIONS =====================
+  {id:'f1',label:'F1: Operate Safely in NAS',type:'function',layer:'functions',x:-200,y:-200,w:130,h:44,color:'#ef4444',
+   desc:'Top-level function: file-and-fly NAS operations.',
+   pdfQuote:'The term "File and Fly" defines the ability of HALE UAS operators to file an IFR flight plan and operate in all class of airspace, consistent with the regulatory criteria and operational requirements for manned aircraft.',
+   pdfRef:'Section 4.1, p.17',sysml:'// Derived top-level function\n// Allocated to: HALEUASSystem',solver:'Aggregates all child functions.',solverResult:'na'},
+
+  {id:'f1_1',label:'F1.1: Maintain Airworthiness',type:'function',layer:'functions',x:-380,y:-130,w:130,h:40,color:'#ef4444',
+   desc:'Maintain aircraft and CS airworthiness.',
+   pdfQuote:'HALE UAS systems will need to be designed, manufactured, certificated and operated under the same regulations as manned aircraft.',
+   pdfRef:'Exec Summary, p.ix',sysml:'// Function allocated to: UA, CS\n// Satisfies: REQ-1',solver:'Supports REQ-1 satisfaction.',solverResult:'na'},
+
+  {id:'f1_2',label:'F1.2: Navigate & Fly IFR',type:'function',layer:'functions',x:-230,y:-130,w:120,h:40,color:'#ef4444',
+   desc:'Navigate along IFR routes.',
+   pdfQuote:'UAS flight operations shall be conducted under Instrument Flight Rules (IFR)... The enroute portion of flight will use existing route structure to the maximum extent possible.',
+   pdfRef:'Table 2, REQ-2.3 & Section 4.5.4, p.24',sysml:'// Function allocated to: UA, Pilot, ua_nav',solver:'Supports REQ-2.3.',solverResult:'na'},
+
+  {id:'f1_3',label:'F1.3: Sense & Avoid',type:'function',layer:'functions',x:-90,y:-130,w:110,h:40,color:'#ef4444',
+   desc:'Detect, track, avoid other aircraft.',
+   pdfQuote:'Ensure that one or more of the accepted methods used to sense and avoid other aircraft is employed at all times to achieve the target level of safety.',
+   pdfRef:'Section 4.6, p.25, criterion #4',sysml:'// Function allocated to: ua_ca\n// Satisfies: REQ-CA, REQ-SAA',solver:'Supports REQ-CA, REQ-SAA.',solverResult:'na'},
+
+  {id:'f1_4',label:'F1.4: Comm with ATC',type:'function',layer:'functions',x:40,y:-130,w:110,h:40,color:'#ef4444',
+   desc:'Two-way voice/data ATC communication.',
+   pdfQuote:'ATC Communication equipment need to provide direct two-way communications between the UAS pilot/operator and the appropriate ATC facility regardless of the location of the control station or the UAS.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Function allocated to: Comms, Pilot',solver:'Supports REQ-ATCCOM, REQ-2.4.',solverResult:'na'},
+
+  {id:'f1_5',label:'F1.5: Manage Contingencies',type:'function',layer:'functions',x:170,y:-130,w:130,h:40,color:'#ef4444',
+   desc:'Execute pre-planned emergency procedures.',
+   pdfQuote:'Provisions for the aircraft to automatically maintain adequate levels of safety must be maintained should the ability of the pilot to control the HALE UAS be interrupted (e.g., loss of C2 link).',
+   pdfRef:'Section 4.5.5, p.24',sysml:'// Function allocated to: UA, CS, ua_frs',solver:'Supports REQ-2.6.',solverResult:'na'},
+
+  {id:'f2',label:'F2: Maintain C2 Link',type:'function',layer:'functions',x:100,y:-200,w:120,h:44,color:'#ef4444',
+   desc:'Maintain continuous C2 link.',
+   pdfQuote:'Throughout the flight the links between the UAS and the control station, and the link between the UAS pilot and ATC, will be maintained (the aircraft is either within LOS or OTH from the control station).',
+   pdfRef:'Section 4.2, p.17',sysml:'// Derived function\n// Allocated to: Comms',solver:'Supports REQ-PFC, REQ-C2SEC.',solverResult:'na'},
+
+  {id:'f2_1',label:'F2.1: C2 Uplink/Downlink',type:'function',layer:'functions',x:300,y:-130,w:120,h:40,color:'#ef4444',
+   desc:'Reliable C2 data transfer in LOS/OTH.',
+   pdfQuote:'C2 equipment must provide reliable transfer of command and control information between the control station and the UAS whether in LOS or OTH mode.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Function allocated to: Comms',solver:'Supports REQ-PFC.',solverResult:'na'},
+
+  {id:'f2_2',label:'F2.2: Secure C2 Link',type:'function',layer:'functions',x:300,y:-75,w:110,h:40,color:'#ef4444',
+   desc:'Encryption and anti-jamming.',
+   pdfQuote:'The security of the control station and the C2 link must always be maintained to prevent external interference with UAS control.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Function allocated to: Comms, CS',solver:'Supports REQ-C2SEC.',solverResult:'na'},
+
+  {id:'f1_6',label:'F1.6: Weather Avoidance',type:'function',layer:'functions',x:-380,y:-75,w:120,h:40,color:'#ef4444',
+   desc:'Detect adverse weather, maintain separation.',
+   pdfQuote:'The aircraft will avoid adverse weather conditions throughout the flight.',
+   pdfRef:'Section 4.2, p.17',sysml:'// Function allocated to: ua_wx\n// Added in review',solver:'Supports REQ-WX (added in review).',solverResult:'na'},
+
+  {id:'f1_7',label:'F1.7: Auto-Land on Link Loss',type:'function',layer:'functions',x:-230,y:-75,w:130,h:40,color:'#ef4444',
+   desc:'Autonomous landing on C2 link loss.',
+   pdfQuote:'Auto-land systems may be required to enabling the UAS to automatically land at UAS designated airports in the event of a loss-link contingency.',
+   pdfRef:'Section 5.2, p.27',sysml:'// Function allocated to: ua_autoland, ua_nav\n// Added in review',solver:'Supports REQ-2.6. CONFLICT with REQ-HITL.',solverResult:'na'},
+
+  {id:'f1_8',label:'F1.8: Mission Planning',type:'function',layer:'functions',x:-90,y:-75,w:120,h:40,color:'#ef4444',
+   desc:'Develop flight plan minimizing ATC impact.',
+   pdfQuote:'The objective of mission planning is to develop a mission/flight plan that meets the user requirements, and at the same time minimize the impact on the ATC system and other airspace users.',
+   pdfRef:'Section 4.5.1, p.23',sysml:'// Function allocated to: CS, Pilot\n// Added in review',solver:'Supports REQ-FLTPLN (added in review).',solverResult:'na'},
+
+  // ===================== MISSIONS =====================
+  {id:'msn_loiter',label:'Loiter Mission',type:'mission',layer:'missions',x:-150,y:500,w:120,h:44,color:'#f472b6',
+   desc:'Telecom loiter mission — station-keep above metro area.',
+   props:{altitude:'55,000 ft',duration:'24 hrs',commsMode:'LOS'},
+   pdfQuote:'The Loiter (e.g., Telecommunications services) scenario depicts a mission in which an HALE UAS would station-keep above a metropolitan area and provide telecommunication services like a pseudo-satellite. For this type of mission, the UAS would depart from Airport A, climb to altitude, and fly to the designated mission area, where it would loiter during its entire mission.',
+   pdfRef:'Section 4.4.1, p.22',sysml:'// Mission instance\n// Uses LOS comms only\n// Single control station',solver:'Comms: LOS sufficient (OTH not needed).\nSolver: comms.supportsLOS=True satisfies REQ-PFC alone.',solverResult:'pass'},
+
+  {id:'msn_ptp',label:'Point-to-Point Mission',type:'mission',layer:'missions',x:60,y:500,w:130,h:44,color:'#f472b6',
+   desc:'Cross-country cargo transport.',
+   props:{altitude:'50,000 ft',duration:'24 hrs',commsMode:'OTH',controlHandover:'possible'},
+   pdfQuote:'The Point-to-Point (e.g., cross country transport) scenario depicts a mission where large UAS are used to transport cargo from one side of the country to the other... Since this type of mission would exceed the line-of-sight distance from the control station some means of over-the-horizon communications would need to be used.',
+   pdfRef:'Section 4.4.2, p.22',sysml:'// Mission instance\n// Requires OTH comms\n// Control handover possible',solver:'Comms: OTH required (LOS insufficient for range).\nSolver: comms.supportsOTH=True needed.',solverResult:'pass'},
+
+  // ===================== CHALLENGES =====================
+  {id:'ch1',label:'CH-1: Level of Safety',type:'challenge',layer:'challenges',x:700,y:-80,w:120,h:44,color:'#eab308',
+   desc:'Define appropriate UAS level of safety.',
+   pdfQuote:'One of the key challenges that must be addressed is the definition of an appropriate level of safety for a UAS. The minimum level of safety will drive the level of airworthiness standards for the design and certification.',
+   pdfRef:'Section 3.3.1, p.14',sysml:'// Drives REQ-1.3 (ELOS)',solver:'Drives REQ-1.3. Unresolved challenge.',solverResult:'na'},
+
+  {id:'ch2',label:'CH-2: Airworthiness Standards',type:'challenge',layer:'challenges',x:700,y:-20,w:140,h:44,color:'#eab308',
+   desc:'No standards exist for UAS type/airworthiness certification.',
+   pdfQuote:'Appropriate and adequate standards have not yet been identified, or in some cases do not exist. For example, cockpit design standards may not be appropriate or adequate for a UAS control station.',
+   pdfRef:'Section 3.3.2, p.14',sysml:'// Drives REQ-1.2',solver:'Drives REQ-1.2. Unresolved challenge.',solverResult:'na'},
+
+  {id:'ch3',label:'CH-3: Sense & Avoid',type:'challenge',layer:'challenges',x:700,y:40,w:120,h:44,color:'#eab308',
+   desc:'Agreement on UAS sense-and-avoid definition.',
+   pdfQuote:'A key element of this challenge is to obtain agreement on an appropriate and adequate definition/description of the UAS "sense and avoid" requirement.',
+   pdfRef:'Section 3.3.3, p.14',sysml:'// Drives REQ-CA',solver:'Drives REQ-CA. Unresolved challenge.',solverResult:'na'},
+
+  {id:'ch4',label:'CH-4: Frequency Spectrum',type:'challenge',layer:'challenges',x:700,y:100,w:130,h:44,color:'#eab308',
+   desc:'No C2 frequencies allocated for UAS.',
+   pdfQuote:'To date, no frequencies in the electromagnetic spectrum have been allocated or approved for UAS command/control use.',
+   pdfRef:'Section 3.3.4, p.15',sysml:'// Drives REQ-2.7',solver:'Drives REQ-2.7. Major external blocker.',solverResult:'na'},
+
+  {id:'ch5',label:'CH-5: Pilot Qualifications',type:'challenge',layer:'challenges',x:700,y:160,w:130,h:44,color:'#eab308',
+   desc:'Appropriate minimum criteria for UAS pilots.',
+   pdfQuote:'The pilot qualifications challenge involves the identification of appropriate minimum criteria for UAS pilots and/or other required crewmembers.',
+   pdfRef:'Section 3.3.5, p.15',sysml:'// Drives REQ-2.5',solver:'Drives REQ-2.5. Standards TBD.',solverResult:'na'},
+
+  {id:'ch6',label:'CH-6: Separation Issues',type:'challenge',layer:'challenges',x:700,y:220,w:120,h:44,color:'#eab308',
+   desc:'Appropriate separation standards for UAS.',
+   pdfQuote:'Since most unmanned aircraft have very different structural and performance characteristics than their manned counterparts, they may require unique separation standards. For example, HALE UAS tend to have long, very flexible wings that may have susceptibility to turbulence.',
+   pdfRef:'Section 3.3.6, p.15',sysml:'// Drives REQ-2.4',solver:'Drives REQ-2.4. Investigation needed.',solverResult:'na'},
+
+  {id:'ch7',label:'CH-7: System Safety Analysis',type:'challenge',layer:'challenges',x:700,y:280,w:130,h:44,color:'#eab308',
+   desc:'Safety studies on elements and overall system.',
+   pdfQuote:'The system safety analyses challenge refers to the need for various safety studies to be conducted to assist in the identification and understanding of potential hazards/risks associated with UAS certification and operation in the NAS.',
+   pdfRef:'Section 3.3.7, p.15',sysml:'// Drives REQ-0, REQ-1.3',solver:'Drives REQ-0, REQ-1.3. Requires FAA-compatible plan.',solverResult:'na'},
+
+  // ===================== ISSUES =====================
+  {id:'issue_hitl_autoland',label:'CONFLICT: HITL vs AutoLand',type:'issue',layer:'all',x:-440,y:430,w:140,h:40,color:'#fb7185',
+   desc:'REQ-HITL requires human override at all times, but Section 5.2 requires auto-land for C2 link loss. On link loss, human cannot be in the loop.',
+   pdfQuote:'A human will always have control or override authority [Assumption #21] vs. Auto-land systems may be required... in the event of a loss-link contingency [Section 5.2].',
+   pdfRef:'Assumption #21 vs Section 5.2',sysml:'// REQ-HITL constraint:\n//   comms.supportsC2Uplink && pilot.hasPilotCertificate\n// REQ-2.6 constraint:\n//   sys.hasAutoLand (operates WITHOUT human)',
+   solver:'Both requirements individually SATISFIABLE.\nNo formal contradiction in solver (different scenarios).\nBut SEMANTIC conflict: link loss makes HITL impossible while requiring auto-land.',solverResult:'na'},
+
+  {id:'issue_c2_single',label:'CONFLICT: C2 Redundancy',type:'issue',layer:'all',x:300,y:-20,w:140,h:40,color:'#fb7185',
+   desc:'Section 5.2 says single-channel C2 may be insufficient. No explicit redundancy requirement in Table 2.',
+   pdfQuote:'Unless collision avoidance equipment automatically maneuvers the UAS to avoid another aircraft when a conflict is detected, a single channel C2 link capability may not provide the level of safety required.',
+   pdfRef:'Section 5.2, p.27',sysml:'// REQ-PFC only requires:\n//   (LOS || OTH) && C2Up && C2Down\n// No redundancy/dual-channel requirement',
+   solver:'REQ-PFC allows single channel.\nGap: No REQ for C2 redundancy despite safety concern.',solverResult:'na'},
+
+  {id:'issue_autonomy',label:'CONFLICT: Autonomy vs HITL',type:'issue',layer:'all',x:-440,y:480,w:140,h:40,color:'#fb7185',
+   desc:'Assumption #25 says autonomy is implementation preference. REQ-HITL says human always in loop. Ambiguous boundary.',
+   pdfQuote:'Autonomy is a system implementation preference — Whether a function is performed manually or automatically (autonomously), it will still need to meet minimum operational and performance requirements [Assumption #25].',
+   pdfRef:'Assumption #25, p.4',sysml:'// No formal constraint for autonomy level\n// REQ-HITL only checks C2 uplink + pilot cert',
+   solver:'Solver cannot detect this — it is a semantic ambiguity.\nREQ-HITL passes formally but scope of "at all times" is unclear.',solverResult:'na'},
+
+  {id:'issue_perf',label:'CONFLICT: HALE IFR Performance',type:'issue',layer:'all',x:-200,y:430,w:140,h:40,color:'#fb7185',
+   desc:'Some HALE UAS (Pathfinder/Helios at 50 mph) may not comply with IFR procedures.',
+   pdfQuote:'Pathfinder Plus and Helios are solar powered HALE UAS with very limited maneuvering capability. Both climb and turn slowly and their cruise speed generally does not exceed 50 miles per hour [Section 2.2]... specific routes may need to be developed [Section 4.5.3].',
+   pdfRef:'Section 2.2, p.9 & Section 4.5.3, p.24',sysml:'// REQ-2.3 constraint:\n//   sys.operatesUnderIFR && pilot.hasInstrumentRating\n// No performance capability check',
+   solver:'REQ-2.3 passes formally — no speed/maneuver constraint.\nGap: No performance requirement ensures IFR compliance is achievable.',solverResult:'na'},
 ];
 
+// ===================== EDGES =====================
 const EDGES = [
   // Composition
-  {from:'sys',to:'ua',type:'composition',label:'deploys'},
-  {from:'sys',to:'cs',type:'composition',label:'includes'},
-  {from:'sys',to:'comms',type:'composition',label:'uses'},
-  {from:'sys',to:'pilot',type:'composition',label:'operatedBy'},
+  {from:'sys',to:'ua',type:'composition',label:'deploys'},{from:'sys',to:'cs',type:'composition',label:'includes'},
+  {from:'sys',to:'comms',type:'composition',label:'uses'},{from:'sys',to:'pilot',type:'composition',label:'operatedBy'},
   {from:'ua',to:'ua_airframe',type:'composition'},{from:'ua',to:'ua_prop',type:'composition'},
   {from:'ua',to:'ua_fltctrl',type:'composition'},{from:'ua',to:'ua_ca',type:'composition'},
   {from:'ua',to:'ua_nav',type:'composition'},{from:'ua',to:'ua_wx',type:'composition'},
@@ -239,48 +666,33 @@ const EDGES = [
   {from:'sys',to:'ext_airport',type:'interface',label:'ground ops'},
   {from:'ua',to:'ext_other_ac',type:'interface',label:'sense & avoid'},
   {from:'comms',to:'ext_fcc',type:'interface',label:'spectrum auth'},
-  // NEW external interfaces from review
   {from:'sys',to:'ext_icao',type:'interface',label:'intl compliance'},
   {from:'role_opsmgr',to:'cs',type:'interface',label:'mission plan'},
   {from:'role_ground',to:'ua',type:'interface',label:'preflight/taxi'},
   {from:'role_payload',to:'ua',type:'interface',label:'payload ops'},
   {from:'ua_transponder',to:'ext_other_ac',type:'interface',label:'cooperative surveillance'},
   {from:'comms',to:'ext_tracon',type:'interface',label:'voice relay'},
-  {from:'ext_airport',to:'ext_fcc',type:'interface',label:'freq coordination'},
-  // Internal data flows
-  {from:'cs',to:'ua',type:'dataflow',label:'C2 commands'},
-  {from:'ua',to:'cs',type:'dataflow',label:'telemetry'},
-  {from:'pilot',to:'cs',type:'dataflow',label:'pilot input'},
-  {from:'comms',to:'ua',type:'dataflow',label:'C2 uplink'},
+  // Data flows
+  {from:'cs',to:'ua',type:'dataflow',label:'C2 commands'},{from:'ua',to:'cs',type:'dataflow',label:'telemetry'},
+  {from:'pilot',to:'cs',type:'dataflow',label:'pilot input'},{from:'comms',to:'ua',type:'dataflow',label:'C2 uplink'},
   {from:'comms',to:'cs',type:'dataflow',label:'C2 downlink'},
-  // Requirement satisfaction (ORIGINAL)
+  // Requirement satisfaction
   {from:'r1',to:'ua',type:'satisfiedBy'},{from:'r1',to:'cs',type:'satisfiedBy'},
   {from:'r1_1',to:'ua',type:'satisfiedBy'},{from:'r1_2',to:'ua',type:'satisfiedBy'},
   {from:'r1_3',to:'ua',type:'satisfiedBy'},{from:'r1_3',to:'pilot',type:'satisfiedBy'},{from:'r1_3',to:'comms',type:'satisfiedBy'},
   {from:'r2_1',to:'sys',type:'satisfiedBy'},{from:'r2_2',to:'sys',type:'satisfiedBy'},
-  {from:'r2_3',to:'pilot',type:'satisfiedBy'},
-  // FIXED from review: REQ-2.3 also needs nav and comms
-  {from:'r2_3',to:'ua_nav',type:'satisfiedBy'},{from:'r2_3',to:'comms',type:'satisfiedBy'},
-  // ORIGINAL REQ-2.4
+  {from:'r2_3',to:'pilot',type:'satisfiedBy'},{from:'r2_3',to:'ua_nav',type:'satisfiedBy'},{from:'r2_3',to:'comms',type:'satisfiedBy'},
   {from:'r2_4',to:'ua',type:'satisfiedBy'},{from:'r2_4',to:'comms',type:'satisfiedBy'},
-  // FIXED from review: REQ-2.4 also needs transponder and CA
   {from:'r2_4',to:'ua_transponder',type:'satisfiedBy'},{from:'r2_4',to:'ua_ca',type:'satisfiedBy'},
-  // ORIGINAL
   {from:'r2_5',to:'pilot',type:'satisfiedBy'},
-  // ORIGINAL REQ-2.6 + FIXES
   {from:'r2_6',to:'ua',type:'satisfiedBy'},{from:'r2_6',to:'sys',type:'satisfiedBy'},
   {from:'r2_6',to:'ua_frs',type:'satisfiedBy'},{from:'r2_6',to:'comms',type:'satisfiedBy'},
-  // ORIGINAL
   {from:'r2_7',to:'comms',type:'satisfiedBy'},
   {from:'rd_ca',to:'ua_ca',type:'satisfiedBy'},
-  // FIXED: REQ-PFC also needs flight controls and CS
   {from:'rd_pfc',to:'comms',type:'satisfiedBy'},{from:'rd_pfc',to:'ua_fltctrl',type:'satisfiedBy'},{from:'rd_pfc',to:'cs',type:'satisfiedBy'},
   {from:'rd_c2s',to:'comms',type:'satisfiedBy'},{from:'rd_c2s',to:'cs',type:'satisfiedBy'},
-  // FIXED: REQ-HITL also needs CS
   {from:'rd_hitl',to:'comms',type:'satisfiedBy'},{from:'rd_hitl',to:'pilot',type:'satisfiedBy'},{from:'rd_hitl',to:'cs',type:'satisfiedBy'},
-  // NEW requirement satisfaction links from review
-  {from:'rd_nav',to:'ua_nav',type:'satisfiedBy'},
-  {from:'rd_wx',to:'ua_wx',type:'satisfiedBy'},
+  {from:'rd_nav',to:'ua_nav',type:'satisfiedBy'},{from:'rd_wx',to:'ua_wx',type:'satisfiedBy'},
   {from:'rd_atccomm',to:'comms',type:'satisfiedBy'},{from:'rd_atccomm',to:'pilot',type:'satisfiedBy'},
   {from:'rd_fltman',to:'sys',type:'satisfiedBy'},
   {from:'rd_fltplan',to:'cs',type:'satisfiedBy'},{from:'rd_fltplan',to:'pilot',type:'satisfiedBy'},
@@ -311,7 +723,7 @@ const EDGES = [
   {from:'msn_ptp',to:'ext_airport',type:'interface',label:'depart'},
   {from:'msn_loiter',to:'comms_los',type:'dataflow',label:'LOS only'},
   {from:'msn_ptp',to:'comms_oth',type:'dataflow',label:'OTH required'},
-  // Challenge-to-requirement traces
+  // Challenge traces
   {from:'ch1',to:'r1_3',type:'challenges',label:'drives'},{from:'ch2',to:'r1_2',type:'challenges',label:'drives'},
   {from:'ch3',to:'rd_ca',type:'challenges',label:'drives'},{from:'ch4',to:'r2_7',type:'challenges',label:'drives'},
   {from:'ch5',to:'r2_5',type:'challenges',label:'drives'},{from:'ch6',to:'r2_4',type:'challenges',label:'drives'},
@@ -319,489 +731,305 @@ const EDGES = [
   // Issue conflict links
   {from:'issue_hitl_autoland',to:'rd_hitl',type:'conflict'},{from:'issue_hitl_autoland',to:'ua_autoland',type:'conflict'},
   {from:'issue_c2_single',to:'rd_pfc',type:'conflict'},{from:'issue_c2_single',to:'comms',type:'conflict'},
-  {from:'issue_autonomy',to:'rd_hitl',type:'conflict'},
-  {from:'issue_perf',to:'r2_3',type:'conflict'},
+  {from:'issue_autonomy',to:'rd_hitl',type:'conflict'},{from:'issue_perf',to:'r2_3',type:'conflict'},
 ];
 
-// =========================================================================
-// ISSUES DATABASE
-// =========================================================================
-const ISSUES = [
-  {id:1,type:'conflict',title:'REQ-HITL vs. Auto-Land Capability',desc:'REQ-HITL requires human override authority at ALL times, but Section 5.2 mandates auto-land capability for C2 link loss scenarios. On link loss, the human cannot be in the loop by definition. These requirements contradict each other.',refs:['rd_hitl','ua_autoland','f1_7'],severity:'high'},
-  {id:2,type:'conflict',title:'Autonomy Preference vs. Human-in-Loop',desc:'Assumption #25 states "autonomy is a system implementation preference" — implying functions can be automated. But REQ-HITL requires human control at all times. The boundary between permissible autonomy and required human control is ambiguous.',refs:['rd_hitl'],severity:'high'},
-  {id:3,type:'conflict',title:'Single-Channel C2 Link Safety Gap',desc:'Section 5.2 explicitly states a single-channel C2 link "may not provide the level of safety required." However, Table 2 has no explicit C2 redundancy requirement. REQ-PFC (positive flight control) implicitly requires this but does not mandate redundancy.',refs:['rd_pfc','comms','f2_1'],severity:'medium'},
-  {id:4,type:'conflict',title:'HALE UAS IFR Performance Variability',desc:'Section 2.2 notes Pathfinder/Helios cruise at ~50 mph with very limited maneuvering. Section 4.5.3 acknowledges specific departure/arrival routes may be needed. REQ-2.3 (IFR operations) may not be achievable by all HALE UAS types without waivers.',refs:['r2_3','ua_airframe'],severity:'medium'},
-  {id:5,type:'gap',title:'Missing Trace: ua_nav → Requirements',desc:'Navigation subsystem (ua_nav) had no requirement traceability. Section 5.2 specifies supplemental onboard navigation needed regardless of GPS status. FIXED: Added REQ-NAV.',refs:['ua_nav','rd_nav'],severity:'medium'},
-  {id:6,type:'gap',title:'Missing Trace: ua_wx → Requirements',desc:'Weather Detection subsystem (ua_wx) had no requirement traceability. Section 5.2 specifies weather detection & avoidance. FIXED: Added REQ-WX.',refs:['ua_wx','rd_wx'],severity:'medium'},
-  {id:7,type:'gap',title:'Missing Trace: REQ-2.3 → ua_nav, comms',desc:'REQ-2.3 (IFR Operations) was only traced to pilot. IFR operations also require navigation equipment on the UA and communication links. FIXED: Added traces.',refs:['r2_3','ua_nav','comms'],severity:'medium'},
-  {id:8,type:'gap',title:'Missing Trace: REQ-2.4 → ua_transponder, ua_ca',desc:'REQ-2.4 (Separation Standards) was only traced to ua and comms. Separation requires transponder (cooperative surveillance) and collision avoidance. FIXED: Added traces.',refs:['r2_4','ua_transponder','ua_ca'],severity:'medium'},
-  {id:9,type:'gap',title:'Missing Trace: REQ-PFC → ua_fltctrl, cs',desc:'REQ-PFC (Positive Flight Control) was only traced to comms. Positive flight control also requires flight control system and control station. FIXED: Added traces.',refs:['rd_pfc','ua_fltctrl','cs'],severity:'medium'},
-  {id:10,type:'gap',title:'Missing: Section 4.6 NAS Integration Criteria',desc:'Section 4.6 lists 5 NAS integration criteria. Criteria #2 (flight manual), #3 (flight planning info to NAS), and #5 (CNS/ATM performance) were not captured. FIXED: Added REQ-FLTMAN, REQ-FLTPLN, REQ-CNS.',refs:['rd_fltman','rd_fltplan','rd_cns'],severity:'medium'},
-  {id:11,type:'gap',title:'Missing: Challenge Areas (Section 3.3)',desc:'Seven challenge areas were not represented in the model. These drive requirements and identify unresolved issues. FIXED: Added CH-1 through CH-7 with traces to requirements.',refs:['ch1','ch2','ch3','ch4','ch5','ch6','ch7'],severity:'low'},
-  {id:12,type:'gap',title:'Missing: Table 3 Stakeholder Roles',desc:'Table 3 defines Ops Manager, Ground Crew, and Payload Ops roles not captured in the system model. These actors interface with components during mission operations. FIXED: Added role nodes.',refs:['role_opsmgr','role_ground','role_payload'],severity:'low'},
-];
+// Use ITEMS as NODES for the diagram
+const NODES = ITEMS;
 
 // =========================================================================
-// CANVAS STATE
+// VIEW SWITCHING
 // =========================================================================
-let cam = {x:0, y:0, zoom:1};
-let dragStart = null, camStart = null;
-let hoveredNode = null, selectedNode = null;
-let activeLayer = 'all';
-let searchTerm = '';
-let issuesOpen = false;
-const mainCanvas = document.getElementById('mainCanvas');
-const connCanvas = document.getElementById('connCanvas');
-const ctx = mainCanvas.getContext('2d');
-const cctx = connCanvas.getContext('2d');
-const ws = document.getElementById('workspace');
+let currentView = 'diagram';
+function setView(v){
+  currentView=v;
+  document.getElementById('diagramView').classList.toggle('active',v==='diagram');
+  document.getElementById('listView').classList.toggle('active',v==='list');
+  document.getElementById('btnDiagram').classList.toggle('active',v==='diagram');
+  document.getElementById('btnList').classList.toggle('active',v==='list');
+  document.getElementById('diagramControls').style.display=v==='diagram'?'flex':'none';
+  if(v==='diagram'){resize();}
+  if(v==='list'){renderList();}
+}
+
+// =========================================================================
+// LIST VIEW
+// =========================================================================
+function getTraces(id){
+  const out=[];
+  EDGES.forEach(e=>{
+    if(e.from===id){const n=ITEMS.find(i=>i.id===e.to);if(n)out.push({dir:'→',type:e.type,label:e.label||'',node:n})}
+    if(e.to===id){const n=ITEMS.find(i=>i.id===e.from);if(n)out.push({dir:'←',type:e.type,label:e.label||'',node:n})}
+  });
+  return out;
+}
+
+function hasIssues(id){
+  return ITEMS.some(i=>i.type==='issue'&&EDGES.some(e=>(e.from===i.id&&e.to===id)||(e.to===i.id&&e.from===id)));
+}
+
+const typeOrder = {system:0,component:1,subsystem:2,requirement:3,function:4,mission:5,external:6,challenge:7,issue:8};
+const typeColors = {system:'#3b82f6',component:'#38bdf8',subsystem:'#10b981',requirement:'#f59e0b',function:'#ef4444',mission:'#f472b6',external:'#a78bfa',challenge:'#eab308',issue:'#fb7185'};
+
+function renderList(){
+  const filterType=document.getElementById('filterType').value;
+  const search=document.getElementById('listSearch').value.toLowerCase();
+  const issuesOnly=document.getElementById('showIssuesOnly').checked;
+
+  let items=ITEMS.filter(i=>{
+    if(filterType!=='all'&&i.type!==filterType)return false;
+    if(search&&!i.label.toLowerCase().includes(search)&&!i.id.toLowerCase().includes(search)&&!(i.desc||'').toLowerCase().includes(search))return false;
+    if(issuesOnly&&!hasIssues(i.id)&&i.type!=='issue')return false;
+    return true;
+  });
+
+  items.sort((a,b)=>(typeOrder[a.type]||99)-(typeOrder[b.type]||99));
+
+  document.getElementById('listStats').textContent=`${items.length} items`;
+
+  let html='';
+  let lastType='';
+  items.forEach(item=>{
+    if(item.type!==lastType){
+      lastType=item.type;
+      html+=`<div class="list-group-header">${item.type}s (${items.filter(i=>i.type===item.type).length})</div>`;
+    }
+    const traces=getTraces(item.id);
+    const hi=hasIssues(item.id);
+    const tc=typeColors[item.type]||'#475569';
+
+    html+=`<div class="item-card" id="card-${item.id}">`;
+    html+=`<div class="item-header" onclick="toggleCard('${item.id}')">`;
+    html+=`<div class="color-bar" style="background:${tc}"></div>`;
+    html+=`<span class="item-id">${item.id}</span>`;
+    html+=`<span class="item-label">${item.label}</span>`;
+    if(hi)html+=`<span class="issue-badge">ISSUE</span>`;
+    html+=`<span class="item-type" style="background:${tc}20;color:${tc}">${item.type}</span>`;
+    html+=`<span class="chevron">&#9654;</span>`;
+    html+=`</div>`;
+
+    // Body with tabs
+    html+=`<div class="item-body">`;
+    html+=`<div class="item-tab-bar">`;
+    html+=`<div class="item-tab active" onclick="switchTab('${item.id}','overview',this)">Overview</div>`;
+    html+=`<div class="item-tab" onclick="switchTab('${item.id}','pdf',this)">PDF Source</div>`;
+    html+=`<div class="item-tab" onclick="switchTab('${item.id}','sysml',this)">SysML v2</div>`;
+    html+=`<div class="item-tab" onclick="switchTab('${item.id}','solver',this)">Solver</div>`;
+    html+=`<div class="item-tab" onclick="switchTab('${item.id}','pipeline',this)">Full Pipeline</div>`;
+    html+=`</div>`;
+
+    // Overview tab
+    html+=`<div class="tab-content active" data-tab="${item.id}-overview">`;
+    html+=`<p style="margin-bottom:8px">${item.desc||''}</p>`;
+    if(traces.length){
+      html+=`<div style="margin-top:8px"><strong style="font-size:11px;color:var(--muted)">TRACES (${traces.length}):</strong></div>`;
+      html+=`<div class="trace-list">`;
+      traces.forEach(t=>{
+        const col=typeColors[t.node.type]||'#475569';
+        html+=`<span class="trace-chip" style="background:${col}20;color:${col}" onclick="scrollToCard('${t.node.id}')" title="${t.dir} ${t.type}: ${t.node.label}">${t.dir} ${t.node.label}</span>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+
+    // PDF tab
+    html+=`<div class="tab-content" data-tab="${item.id}-pdf">`;
+    if(item.pdfQuote){
+      html+=`<div class="pdf-quote">"${item.pdfQuote}"<div class="pdf-ref">— ${item.pdfRef||'CONOPS'}</div></div>`;
+    } else {
+      html+=`<p style="color:var(--muted)">No direct PDF quote available.</p>`;
+    }
+    html+=`</div>`;
+
+    // SysML tab
+    html+=`<div class="tab-content" data-tab="${item.id}-sysml">`;
+    if(item.sysml){
+      html+=`<div class="sysml-code">${escHtml(item.sysml)}</div>`;
+    } else {
+      html+=`<p style="color:var(--muted)">No SysML v2 representation.</p>`;
+    }
+    html+=`</div>`;
+
+    // Solver tab
+    html+=`<div class="tab-content" data-tab="${item.id}-solver">`;
+    if(item.solver){
+      html+=`<span class="solver-result ${item.solverResult}">${item.solverResult==='pass'?'SATISFIABLE':item.solverResult==='fail'?'UNSATISFIABLE':'N/A'}</span>`;
+      html+=`<div class="solver-block"><pre style="white-space:pre-wrap;font-family:monospace;font-size:11px;color:var(--text)">${escHtml(item.solver)}</pre></div>`;
+    } else {
+      html+=`<p style="color:var(--muted)">Not in solver scope.</p>`;
+    }
+    html+=`</div>`;
+
+    // Pipeline tab (full traceability)
+    html+=`<div class="tab-content" data-tab="${item.id}-pipeline">`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">1. PDF SOURCE</div>`;
+    if(item.pdfQuote){
+      html+=`<div class="pdf-quote" style="font-size:10px">"${item.pdfQuote}"<div class="pdf-ref">— ${item.pdfRef||''}</div></div>`;
+    } else { html+=`<p style="color:var(--muted);font-size:10px">No direct quote.</p>`; }
+    html+=`<div class="pipeline-arrow">&#x25BC;</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px">2. SYSTEM MODEL ITEM</div>`;
+    html+=`<div style="background:rgba(59,130,246,.08);padding:8px 12px;border-radius:6px;border-left:3px solid var(--accent);font-size:11px;margin:4px 0"><strong>${item.label}</strong> [${item.type}]<br>${item.desc||''}</div>`;
+    html+=`<div class="pipeline-arrow">&#x25BC;</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">3. SysML v2 FORMALIZATION</div>`;
+    if(item.sysml){
+      html+=`<div class="sysml-code" style="font-size:10px">${escHtml(item.sysml)}</div>`;
+    } else { html+=`<p style="color:var(--muted);font-size:10px">Not formalized.</p>`; }
+    html+=`<div class="pipeline-arrow">&#x25BC;</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">4. SOLVER VERIFICATION</div>`;
+    html+=`<span class="solver-result ${item.solverResult}">${item.solverResult==='pass'?'SATISFIABLE':item.solverResult==='fail'?'UNSATISFIABLE':'N/A'}</span>`;
+    if(item.solver){
+      html+=`<div class="solver-block" style="margin-top:4px"><pre style="white-space:pre-wrap;font-family:monospace;font-size:10px;color:var(--text)">${escHtml(item.solver)}</pre></div>`;
+    }
+    html+=`</div>`;
+
+    html+=`</div></div>`; // close body, card
+  });
+
+  document.getElementById('listContainer').innerHTML=html;
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function toggleCard(id){
+  const card=document.getElementById('card-'+id);
+  if(card)card.classList.toggle('expanded');
+}
+
+function switchTab(id,tab,el){
+  const card=document.getElementById('card-'+id);
+  if(!card)return;
+  card.querySelectorAll('.item-tab').forEach(t=>t.classList.remove('active'));
+  card.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const content=card.querySelector(`[data-tab="${id}-${tab}"]`);
+  if(content)content.classList.add('active');
+}
+
+function scrollToCard(id){
+  const card=document.getElementById('card-'+id);
+  if(card){
+    card.classList.add('expanded');
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    card.style.borderColor='var(--accent)';
+    setTimeout(()=>card.style.borderColor='',2000);
+  }
+}
+
+// =========================================================================
+// DIAGRAM — Canvas state & rendering (same as before, compact)
+// =========================================================================
+let cam={x:0,y:0,zoom:1},dragStart=null,camStart=null,hoveredNode=null,selectedNode=null,activeLayer='all',searchTerm='';
+const mainCanvas=document.getElementById('mainCanvas'),connCanvas=document.getElementById('connCanvas');
+const ctx=mainCanvas.getContext('2d'),cctx=connCanvas.getContext('2d');
+const ws=document.getElementById('diagramView');
 
 function resize(){
-  const r = window.devicePixelRatio||1;
-  const w = ws.clientWidth, h = ws.clientHeight;
-  [mainCanvas, connCanvas].forEach(c=>{c.width=w*r;c.height=h*r;c.style.width=w+'px';c.style.height=h+'px';c.getContext('2d').setTransform(r,0,0,r,0,0)});
+  if(currentView!=='diagram')return;
+  const r=window.devicePixelRatio||1,w=ws.clientWidth,h=ws.clientHeight;
+  [mainCanvas,connCanvas].forEach(c=>{c.width=w*r;c.height=h*r;c.style.width=w+'px';c.style.height=h+'px';c.getContext('2d').setTransform(r,0,0,r,0,0)});
   draw();
 }
-window.addEventListener('resize', resize);
+window.addEventListener('resize',resize);
 
-function worldToScreen(wx, wy){return[(wx-cam.x)*cam.zoom+mainCanvas.clientWidth/2,(wy-cam.y)*cam.zoom+mainCanvas.clientHeight/2]}
-function screenToWorld(sx, sy){return[(sx-mainCanvas.clientWidth/2)/cam.zoom+cam.x,(sy-mainCanvas.clientHeight/2)/cam.zoom+cam.y]}
+function worldToScreen(wx,wy){return[(wx-cam.x)*cam.zoom+mainCanvas.clientWidth/2,(wy-cam.y)*cam.zoom+mainCanvas.clientHeight/2]}
+function screenToWorld(sx,sy){return[(sx-mainCanvas.clientWidth/2)/cam.zoom+cam.x,(sy-mainCanvas.clientHeight/2)/cam.zoom+cam.y]}
 
-// =========================================================================
-// VISIBILITY
-// =========================================================================
 function isVisible(node){
-  if(activeLayer!=='all' && node.layer!==activeLayer){
-    // Allow issues to show in all layers
-    if(node.type==='issue' && node.layer==='all') return true;
-    if(activeLayer==='physical' && (node.layer==='requirements'||node.layer==='functions'||node.layer==='missions'||node.layer==='challenges')) return false;
-    if(activeLayer!=='physical' && node.layer!=='physical' && node.layer!==activeLayer) return false;
-    if(activeLayer==='physical' && node.layer==='physical') { /* ok */ }
-    else return false;
+  if(activeLayer!=='all'){
+    if(node.type==='issue')return true;
+    if(activeLayer==='physical'&&(node.layer==='requirements'||node.layer==='functions'||node.layer==='missions'||node.layer==='challenges'))return false;
+    if(activeLayer!=='physical'&&node.layer!=='physical'&&node.layer!==activeLayer)return false;
   }
-  if(searchTerm){
-    const s = searchTerm.toLowerCase();
-    if(!node.label.toLowerCase().includes(s) && !node.id.toLowerCase().includes(s) && !(node.desc||'').toLowerCase().includes(s)) return false;
-  }
-  // Check if parent is expanded
-  const parentEdge = EDGES.find(e=>e.to===node.id && e.type==='composition');
-  if(parentEdge){
-    const parent = NODES.find(n=>n.id===parentEdge.from);
-    if(parent && parent.expanded===false && parent.children) return false;
-  }
+  if(searchTerm){const s=searchTerm.toLowerCase();if(!node.label.toLowerCase().includes(s)&&!node.id.toLowerCase().includes(s)&&!(node.desc||'').toLowerCase().includes(s))return false}
+  const pe=EDGES.find(e=>e.to===node.id&&e.type==='composition');
+  if(pe){const p=NODES.find(n=>n.id===pe.from);if(p&&p.expanded===false&&p.children)return false}
   return true;
 }
 function isEdgeVisible(edge){
-  const from=NODES.find(n=>n.id===edge.from), to=NODES.find(n=>n.id===edge.to);
-  if(!from||!to) return false;
-  if(!isVisible(from)||!isVisible(to)) return false;
-  if(activeLayer==='physical' && (edge.type==='satisfiedBy'||edge.type==='allocation'||edge.type==='challenges'||edge.type==='conflict')) return false;
-  if(activeLayer==='physical' && edge.type==='decomposition'&&from.layer==='requirements') return false;
-  if(activeLayer==='requirements' && (edge.type==='allocation'||edge.type==='dataflow'||edge.type==='flownBy')) return false;
-  if(activeLayer==='functions' && (edge.type==='satisfiedBy'||edge.type==='flownBy'||edge.type==='challenges'||edge.type==='conflict')) return false;
-  if(activeLayer==='functions' && edge.type==='decomposition'&&from.layer==='requirements') return false;
-  if(activeLayer==='missions' && edge.type==='decomposition') return false;
+  const f=NODES.find(n=>n.id===edge.from),t=NODES.find(n=>n.id===edge.to);
+  if(!f||!t||!isVisible(f)||!isVisible(t))return false;
+  if(activeLayer==='physical'&&(edge.type==='satisfiedBy'||edge.type==='allocation'||edge.type==='challenges'||edge.type==='conflict'))return false;
+  if(activeLayer==='physical'&&edge.type==='decomposition'&&f.layer==='requirements')return false;
   return true;
 }
 
-// =========================================================================
-// DRAWING
-// =========================================================================
 function draw(){
-  const W=mainCanvas.clientWidth, H=mainCanvas.clientHeight;
-  ctx.clearRect(0,0,W,H);
-  cctx.clearRect(0,0,W,H);
+  const W=mainCanvas.clientWidth,H=mainCanvas.clientHeight;
+  ctx.clearRect(0,0,W,H);cctx.clearRect(0,0,W,H);
+  const edgeStyles={composition:{color:'#475569',w:1.5,d:[]},interface:{color:'#a78bfa',w:1,d:[6,3]},dataflow:{color:'#38bdf8',w:1,d:[3,3]},satisfiedBy:{color:'#f59e0b',w:1,d:[4,4]},decomposition:{color:'#64748b',w:1,d:[]},allocation:{color:'#ef4444',w:1,d:[5,3]},flownBy:{color:'#f472b6',w:1,d:[4,3]},challenges:{color:'#eab308',w:1.5,d:[6,3]},conflict:{color:'#fb7185',w:2,d:[3,3]}};
 
-  // Draw edges
   EDGES.forEach(edge=>{
-    if(!isEdgeVisible(edge)) return;
-    const from=NODES.find(n=>n.id===edge.from), to=NODES.find(n=>n.id===edge.to);
-    const [x1,y1]=worldToScreen(from.x, from.y);
-    const [x2,y2]=worldToScreen(to.x, to.y);
-    const isHighlight = selectedNode && (edge.from===selectedNode.id || edge.to===selectedNode.id);
-
-    cctx.beginPath();
-    cctx.moveTo(x1,y1); cctx.lineTo(x2,y2);
-    const styles={
-      composition:{color:'#475569',width:1.5,dash:[]},
-      interface:{color:'#a78bfa',width:1,dash:[6,3]},
-      dataflow:{color:'#38bdf8',width:1,dash:[3,3]},
-      satisfiedBy:{color:'#f59e0b',width:1,dash:[4,4]},
-      decomposition:{color:'#64748b',width:1,dash:[]},
-      allocation:{color:'#ef4444',width:1,dash:[5,3]},
-      flownBy:{color:'#f472b6',width:1,dash:[4,3]},
-      challenges:{color:'#eab308',width:1.5,dash:[6,3]},
-      conflict:{color:'#fb7185',width:2,dash:[3,3]}
-    };
-    const s = styles[edge.type]||styles.composition;
-    cctx.strokeStyle = isHighlight ? '#fff' : s.color;
-    cctx.lineWidth = (isHighlight ? s.width+1 : s.width) * cam.zoom;
-    cctx.globalAlpha = isHighlight ? 1 : (edge.type==='conflict'?0.8:0.5);
-    cctx.setLineDash(s.dash.map(d=>d*cam.zoom));
-    cctx.stroke();
-    cctx.setLineDash([]);
-    cctx.globalAlpha = 1;
-
-    // Edge label
-    if(edge.label && cam.zoom > 0.6){
-      const mx=(x1+x2)/2, my=(y1+y2)/2;
-      cctx.font=`${9*cam.zoom}px system-ui`;
-      cctx.fillStyle=isHighlight?'#fff':'#64748b';
-      cctx.textAlign='center';
-      cctx.fillText(edge.label, mx, my-4*cam.zoom);
-    }
-
-    // Arrowhead
-    if(edge.type!=='composition'){
-      const angle=Math.atan2(y2-y1,x2-x1);
-      const sz=6*cam.zoom;
-      cctx.beginPath();
-      cctx.moveTo(x2,y2);
-      cctx.lineTo(x2-sz*Math.cos(angle-0.4),y2-sz*Math.sin(angle-0.4));
-      cctx.lineTo(x2-sz*Math.cos(angle+0.4),y2-sz*Math.sin(angle+0.4));
-      cctx.closePath();
-      cctx.fillStyle=isHighlight?'#fff':s.color;
-      cctx.globalAlpha=isHighlight?1:0.6;
-      cctx.fill();
-      cctx.globalAlpha=1;
-    }
-    // Diamond for composition
-    if(edge.type==='composition'){
-      const angle=Math.atan2(y1-y2,x1-x2);
-      const sz=7*cam.zoom;
-      const bx=x1, by=y1;
-      cctx.beginPath();
-      cctx.moveTo(bx+sz*Math.cos(angle),by+sz*Math.sin(angle));
-      cctx.lineTo(bx+sz*Math.cos(angle+Math.PI/2)*0.5,by+sz*Math.sin(angle+Math.PI/2)*0.5);
-      cctx.lineTo(bx-sz*Math.cos(angle),by-sz*Math.sin(angle));
-      cctx.lineTo(bx-sz*Math.cos(angle+Math.PI/2)*0.5,by-sz*Math.sin(angle+Math.PI/2)*0.5);
-      cctx.closePath();
-      cctx.fillStyle=isHighlight?'#fff':'#475569';
-      cctx.fill();
-    }
+    if(!isEdgeVisible(edge))return;
+    const f=NODES.find(n=>n.id===edge.from),t=NODES.find(n=>n.id===edge.to);
+    const[x1,y1]=worldToScreen(f.x,f.y),[x2,y2]=worldToScreen(t.x,t.y);
+    const hl=selectedNode&&(edge.from===selectedNode.id||edge.to===selectedNode.id);
+    const s=edgeStyles[edge.type]||edgeStyles.composition;
+    cctx.beginPath();cctx.moveTo(x1,y1);cctx.lineTo(x2,y2);
+    cctx.strokeStyle=hl?'#fff':s.color;cctx.lineWidth=(hl?s.w+1:s.w)*cam.zoom;
+    cctx.globalAlpha=hl?1:0.5;cctx.setLineDash(s.d.map(d=>d*cam.zoom));cctx.stroke();cctx.setLineDash([]);cctx.globalAlpha=1;
+    if(edge.label&&cam.zoom>.6){const mx=(x1+x2)/2,my=(y1+y2)/2;cctx.font=`${9*cam.zoom}px system-ui`;cctx.fillStyle=hl?'#fff':'#64748b';cctx.textAlign='center';cctx.fillText(edge.label,mx,my-4*cam.zoom)}
+    if(edge.type!=='composition'){const a=Math.atan2(y2-y1,x2-x1),sz=6*cam.zoom;cctx.beginPath();cctx.moveTo(x2,y2);cctx.lineTo(x2-sz*Math.cos(a-.4),y2-sz*Math.sin(a-.4));cctx.lineTo(x2-sz*Math.cos(a+.4),y2-sz*Math.sin(a+.4));cctx.closePath();cctx.fillStyle=hl?'#fff':s.color;cctx.globalAlpha=hl?1:.6;cctx.fill();cctx.globalAlpha=1}
   });
 
-  // Draw nodes
   NODES.forEach(node=>{
-    if(!isVisible(node)) return;
-    const [sx,sy]=worldToScreen(node.x, node.y);
-    const w=node.w*cam.zoom, h=node.h*cam.zoom;
-    const isHover = hoveredNode===node;
-    const isSel = selectedNode===node;
-    const isConnected = selectedNode && EDGES.some(e=>(e.from===selectedNode.id&&e.to===node.id)||(e.to===selectedNode.id&&e.from===node.id));
-    const dimmed = selectedNode && !isSel && !isConnected;
-
-    ctx.globalAlpha = dimmed ? 0.25 : 1;
-
-    // Shadow
-    ctx.shadowColor='rgba(0,0,0,0.3)';ctx.shadowBlur=isHover?12:6;ctx.shadowOffsetY=2;
-
-    // Special rendering for issue nodes
+    if(!isVisible(node))return;
+    const[sx,sy]=worldToScreen(node.x,node.y),w=node.w*cam.zoom,h=node.h*cam.zoom;
+    const isHover=hoveredNode===node,isSel=selectedNode===node;
+    const isConn=selectedNode&&EDGES.some(e=>(e.from===selectedNode.id&&e.to===node.id)||(e.to===selectedNode.id&&e.from===node.id));
+    ctx.globalAlpha=selectedNode&&!isSel&&!isConn?.25:1;
+    ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=isHover?12:6;ctx.shadowOffsetY=2;
+    const r=6*cam.zoom;
     if(node.type==='issue'){
-      ctx.beginPath();
-      ctx.roundRect(sx-w/2, sy-h/2, w, h, 6*cam.zoom);
-      ctx.fillStyle = '#fb718530';
-      ctx.fill();
-      ctx.strokeStyle = isSel ? '#fff' : '#fb7185';
-      ctx.lineWidth = (isSel?3:2)*cam.zoom;
-      ctx.setLineDash([4*cam.zoom,3*cam.zoom]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-      // Warning icon
-      if(cam.zoom > 0.4){
-        ctx.font=`${14*cam.zoom}px system-ui`;
-        ctx.fillStyle='#fb7185';
-        ctx.textAlign='center';
-        ctx.fillText('⚠', sx-w/2+12*cam.zoom, sy-h/2+14*cam.zoom);
-      }
-    } else {
-      // Body
-      const r=6*cam.zoom;
-      ctx.beginPath();
-      ctx.roundRect(sx-w/2, sy-h/2, w, h, r);
-      ctx.fillStyle = node.color + (node.type==='external'?'30':'20');
-      ctx.fill();
-      ctx.strokeStyle = isSel ? '#fff' : isHover ? '#e2e8f0' : node.color;
-      ctx.lineWidth = (isSel||isHover?2.5:1.5)*cam.zoom;
-      ctx.stroke();
-      ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-
-      // Top color bar
-      ctx.beginPath();
-      ctx.roundRect(sx-w/2, sy-h/2, w, 4*cam.zoom, [r,r,0,0]);
-      ctx.fillStyle=node.color;
-      ctx.fill();
+      ctx.beginPath();ctx.roundRect(sx-w/2,sy-h/2,w,h,r);ctx.fillStyle='#fb718530';ctx.fill();
+      ctx.strokeStyle=isSel?'#fff':'#fb7185';ctx.lineWidth=(isSel?3:2)*cam.zoom;ctx.setLineDash([4*cam.zoom,3*cam.zoom]);ctx.stroke();ctx.setLineDash([]);
+    }else{
+      ctx.beginPath();ctx.roundRect(sx-w/2,sy-h/2,w,h,r);ctx.fillStyle=node.color+(node.type==='external'?'30':'20');ctx.fill();
+      ctx.strokeStyle=isSel?'#fff':isHover?'#e2e8f0':node.color;ctx.lineWidth=(isSel||isHover?2.5:1.5)*cam.zoom;ctx.stroke();
+      ctx.beginPath();ctx.roundRect(sx-w/2,sy-h/2,w,4*cam.zoom,[r,r,0,0]);ctx.fillStyle=node.color;ctx.fill();
     }
-
-    // Label
-    if(cam.zoom > 0.3){
-      const lines = node.label.split('\n');
-      ctx.font=`${(isSel?'bold ':'600 ')}${Math.max(8,10*cam.zoom)}px system-ui`;
-      ctx.fillStyle=node.type==='issue'?'#fb7185':'#fff';
-      ctx.textAlign='center';
-      lines.forEach((line,i)=>{
-        ctx.fillText(line, sx, sy + (i - (lines.length-1)/2)*13*cam.zoom + 4*cam.zoom);
-      });
-    }
-
-    // Expand indicator
-    if(node.children && node.children.length && cam.zoom > 0.4){
-      const ex=sx+w/2-8*cam.zoom, ey=sy-h/2+8*cam.zoom;
-      ctx.beginPath();ctx.arc(ex,ey,6*cam.zoom,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,255,255,0.15)';ctx.fill();
-      ctx.font=`${10*cam.zoom}px system-ui`;ctx.fillStyle='#fff';
-      ctx.fillText(node.expanded?'−':'+', ex, ey+3.5*cam.zoom);
-    }
-
-    // Issue indicator on nodes that have issues
-    if(node.type!=='issue'){
-      const hasIssue = ISSUES.some(iss=>iss.refs.includes(node.id));
-      if(hasIssue && cam.zoom > 0.4){
-        const ix=sx-w/2+8*cam.zoom, iy=sy-h/2+8*cam.zoom;
-        ctx.beginPath();ctx.arc(ix,iy,5*cam.zoom,0,Math.PI*2);
-        ctx.fillStyle='#fb7185';ctx.fill();
-        ctx.font=`bold ${7*cam.zoom}px system-ui`;ctx.fillStyle='#fff';ctx.textAlign='center';
-        ctx.fillText('!',ix,iy+2.5*cam.zoom);
-      }
-    }
-
+    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    if(cam.zoom>.3){const lines=node.label.split('\n');ctx.font=`${isSel?'bold ':'600 '}${Math.max(8,10*cam.zoom)}px system-ui`;ctx.fillStyle=node.type==='issue'?'#fb7185':'#fff';ctx.textAlign='center';lines.forEach((l,i)=>ctx.fillText(l,sx,sy+(i-(lines.length-1)/2)*13*cam.zoom+4*cam.zoom))}
+    if(node.children&&node.children.length&&cam.zoom>.4){const ex=sx+w/2-8*cam.zoom,ey=sy-h/2+8*cam.zoom;ctx.beginPath();ctx.arc(ex,ey,6*cam.zoom,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.15)';ctx.fill();ctx.font=`${10*cam.zoom}px system-ui`;ctx.fillStyle='#fff';ctx.fillText(node.expanded?'−':'+',ex,ey+3.5*cam.zoom)}
     ctx.globalAlpha=1;
   });
 }
 
-// =========================================================================
-// INTERACTION
-// =========================================================================
-function getNodeAt(sx, sy){
-  const [wx,wy]=screenToWorld(sx,sy);
-  for(let i=NODES.length-1;i>=0;i--){
-    const n=NODES[i];
-    if(!isVisible(n)) continue;
-    if(wx>=n.x-n.w/2 && wx<=n.x+n.w/2 && wy>=n.y-n.h/2 && wy<=n.y+n.h/2) return n;
-  }
-  return null;
-}
+// Interaction
+function getNodeAt(sx,sy){const[wx,wy]=screenToWorld(sx,sy);for(let i=NODES.length-1;i>=0;i--){const n=NODES[i];if(!isVisible(n))continue;if(wx>=n.x-n.w/2&&wx<=n.x+n.w/2&&wy>=n.y-n.h/2&&wy<=n.y+n.h/2)return n}return null}
 
-mainCanvas.addEventListener('mousedown',e=>{
-  const rect=mainCanvas.getBoundingClientRect();
-  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
-  const node=getNodeAt(sx,sy);
-  if(node){
-    // Check expand button
-    const [nsx,nsy]=worldToScreen(node.x,node.y);
-    const nw=node.w*cam.zoom, nh=node.h*cam.zoom;
-    const ex=nsx+nw/2-8*cam.zoom, ey=nsy-nh/2+8*cam.zoom;
-    if(node.children && Math.hypot(sx-ex,sy-ey)<10*cam.zoom){
-      node.expanded=!node.expanded;
-      draw();
-      return;
-    }
-    selectedNode=node;
-    openPanel(node);
-    draw();
-    return;
-  }
-  dragStart={x:e.clientX,y:e.clientY};
-  camStart={x:cam.x,y:cam.y};
-});
-
-mainCanvas.addEventListener('mousemove',e=>{
-  const rect=mainCanvas.getBoundingClientRect();
-  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
-  if(dragStart){
-    cam.x=camStart.x-(e.clientX-dragStart.x)/cam.zoom;
-    cam.y=camStart.y-(e.clientY-dragStart.y)/cam.zoom;
-    draw();
-    return;
-  }
-  const node=getNodeAt(sx,sy);
-  if(node!==hoveredNode){
-    hoveredNode=node;
-    mainCanvas.style.cursor=node?'pointer':'grab';
-    const tt=document.getElementById('tooltip');
-    if(node){
-      tt.innerHTML=`<strong>${node.label.replace(/\n/g,' ')}</strong><br><span style="color:#94a3b8">${(node.desc||'').substring(0,140)}${(node.desc||'').length>140?'...':''}</span>`;
-      tt.style.display='block';
-      tt.style.left=(e.clientX-rect.left+12)+'px';
-      tt.style.top=(e.clientY-rect.top-10)+'px';
-    } else {
-      tt.style.display='none';
-    }
-    draw();
-  } else if(node){
-    const tt=document.getElementById('tooltip');
-    tt.style.left=(e.clientX-rect.left+12)+'px';
-    tt.style.top=(e.clientY-rect.top-10)+'px';
-  }
-});
-
+mainCanvas.addEventListener('mousedown',e=>{const rect=mainCanvas.getBoundingClientRect(),sx=e.clientX-rect.left,sy=e.clientY-rect.top,node=getNodeAt(sx,sy);if(node){const[nsx,nsy]=worldToScreen(node.x,node.y),nw=node.w*cam.zoom,nh=node.h*cam.zoom;if(node.children&&Math.hypot(sx-(nsx+nw/2-8*cam.zoom),sy-(nsy-nh/2+8*cam.zoom))<10*cam.zoom){node.expanded=!node.expanded;draw();return}selectedNode=node;openPanel(node);draw();return}dragStart={x:e.clientX,y:e.clientY};camStart={x:cam.x,y:cam.y}});
+mainCanvas.addEventListener('mousemove',e=>{const rect=mainCanvas.getBoundingClientRect(),sx=e.clientX-rect.left,sy=e.clientY-rect.top;if(dragStart){cam.x=camStart.x-(e.clientX-dragStart.x)/cam.zoom;cam.y=camStart.y-(e.clientY-dragStart.y)/cam.zoom;draw();return}const node=getNodeAt(sx,sy);if(node!==hoveredNode){hoveredNode=node;mainCanvas.style.cursor=node?'pointer':'grab';const tt=document.getElementById('tooltip');if(node){tt.innerHTML=`<strong>${node.label.replace(/\n/g,' ')}</strong><br><span style="color:#94a3b8">${(node.desc||'').substring(0,120)}</span>`;tt.style.display='block';tt.style.left=(e.clientX-rect.left+12)+'px';tt.style.top=(e.clientY-rect.top-10)+'px'}else{tt.style.display='none'}draw()}else if(node){const tt=document.getElementById('tooltip');tt.style.left=(e.clientX-rect.left+12)+'px';tt.style.top=(e.clientY-rect.top-10)+'px'}});
 mainCanvas.addEventListener('mouseup',()=>{dragStart=null});
 mainCanvas.addEventListener('mouseleave',()=>{dragStart=null;document.getElementById('tooltip').style.display='none'});
+mainCanvas.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY>0?.9:1.1,rect=mainCanvas.getBoundingClientRect(),sx=e.clientX-rect.left,sy=e.clientY-rect.top,[wx,wy]=screenToWorld(sx,sy);cam.zoom=Math.max(.15,Math.min(4,cam.zoom*f));cam.x=wx-(sx-mainCanvas.clientWidth/2)/cam.zoom;cam.y=wy-(sy-mainCanvas.clientHeight/2)/cam.zoom;draw()},{passive:false});
+mainCanvas.addEventListener('dblclick',e=>{const rect=mainCanvas.getBoundingClientRect(),node=getNodeAt(e.clientX-rect.left,e.clientY-rect.top);if(node){cam.x=node.x;cam.y=node.y;cam.zoom=1.8;draw()}});
 
-mainCanvas.addEventListener('wheel',e=>{
-  e.preventDefault();
-  const factor=e.deltaY>0?0.9:1.1;
-  const rect=mainCanvas.getBoundingClientRect();
-  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
-  const [wx,wy]=screenToWorld(sx,sy);
-  cam.zoom=Math.max(0.15,Math.min(4,cam.zoom*factor));
-  cam.x=wx-(sx-mainCanvas.clientWidth/2)/cam.zoom;
-  cam.y=wy-(sy-mainCanvas.clientHeight/2)/cam.zoom;
-  draw();
-},{passive:false});
-
-mainCanvas.addEventListener('dblclick',e=>{
-  const rect=mainCanvas.getBoundingClientRect();
-  const node=getNodeAt(e.clientX-rect.left,e.clientY-rect.top);
-  if(node){
-    cam.x=node.x; cam.y=node.y; cam.zoom=1.8;
-    draw();
-  }
-});
-
-// =========================================================================
-// DETAIL PANEL
-// =========================================================================
 function openPanel(node){
-  const panel=document.getElementById('detailPanel');
-  const icon=document.getElementById('dpIcon');
-  const title=document.getElementById('dpTitle');
-  const content=document.getElementById('dpContent');
-
-  icon.style.background=node.color;
-  icon.textContent=node.type==='issue'?'!':node.type[0].toUpperCase();
-  title.textContent=node.label.replace(/\n/g,' ');
-
-  let html=`<div class="dp-section"><h3>Description</h3><p>${node.desc||'—'}</p></div>`;
-
-  // Show issues for this node
-  const nodeIssues = ISSUES.filter(iss=>iss.refs.includes(node.id));
-  if(nodeIssues.length){
-    html+=`<div class="dp-section" style="background:rgba(251,113,133,.06)"><h3 style="color:#fb7185">Review Issues (${nodeIssues.length})</h3>`;
-    nodeIssues.forEach(iss=>{
-      html+=`<div style="margin-bottom:8px;padding:6px 8px;background:rgba(251,113,133,.08);border-radius:6px;border-left:3px solid ${iss.type==='conflict'?'#fb7185':'#f59e0b'}">`;
-      html+=`<div style="font-size:10px;font-weight:700;color:${iss.type==='conflict'?'#fb7185':'#f59e0b'};text-transform:uppercase;margin-bottom:2px">${iss.type} — ${iss.severity}</div>`;
-      html+=`<div style="font-size:11px;font-weight:600;color:#fff;margin-bottom:3px">${iss.title}</div>`;
-      html+=`<div style="font-size:10px;color:#94a3b8;line-height:1.5">${iss.desc}</div></div>`;
-    });
-    html+=`</div>`;
-  }
-
-  // Properties
-  if(node.props){
-    html+=`<div class="dp-section"><h3>Properties</h3><div class="dp-props">`;
-    for(const[k,v] of Object.entries(node.props)){
-      const display = v===true?'<span style="color:#10b981">&#10003; True</span>':v===false?'<span style="color:#ef4444">&#10007; False</span>':v;
-      html+=`<div class="dp-prop"><div class="k">${k}</div><div class="v">${display}</div></div>`;
-    }
-    html+=`</div></div>`;
-  }
-
-  // Connections
+  const panel=document.getElementById('detailPanel'),icon=document.getElementById('dpIcon'),title=document.getElementById('dpTitle'),content=document.getElementById('dpContent');
+  icon.style.background=node.color;icon.textContent=node.type==='issue'?'!':node.type[0].toUpperCase();title.textContent=node.label.replace(/\n/g,' ');
+  let html=`<div class="dp-section"><h3>Description</h3><p>${node.desc||''}</p></div>`;
+  if(node.pdfQuote)html+=`<div class="dp-section"><h3>PDF Source</h3><div class="pdf-quote" style="font-size:11px">"${node.pdfQuote}"<div class="pdf-ref">— ${node.pdfRef||''}</div></div></div>`;
   const conns=EDGES.filter(e=>e.from===node.id||e.to===node.id);
   if(conns.length){
-    const grouped={};
-    conns.forEach(e=>{
-      const t=e.type;
-      if(!grouped[t]) grouped[t]=[];
-      const otherId=e.from===node.id?e.to:e.from;
-      const other=NODES.find(n=>n.id===otherId);
-      const dir=e.from===node.id?'→':'←';
-      grouped[t].push({other,dir,label:e.label||''});
-    });
+    const grouped={};conns.forEach(e=>{const t=e.type;if(!grouped[t])grouped[t]=[];const oid=e.from===node.id?e.to:e.from,o=NODES.find(n=>n.id===oid);grouped[t].push({other:o,dir:e.from===node.id?'→':'←',label:e.label||''})});
     html+=`<div class="dp-section"><h3>Connections (${conns.length})</h3>`;
-    for(const[type,items] of Object.entries(grouped)){
-      const typeColors={composition:'#475569',interface:'#a78bfa',dataflow:'#38bdf8',satisfiedBy:'#f59e0b',decomposition:'#64748b',allocation:'#ef4444',flownBy:'#f472b6',challenges:'#eab308',conflict:'#fb7185'};
-      html+=`<div style="margin-bottom:8px"><span class="dp-tag" style="background:${typeColors[type]||'#475569'}30;color:${typeColors[type]||'#475569'}">${type}</span></div>`;
-      items.forEach(item=>{
-        if(item.other){
-          html+=`<div class="dp-conn" onclick="navigateTo('${item.other.id}')"><span class="arrow">${item.dir}</span><span style="color:${item.other.color}">${item.other.label.replace(/\n/g,' ')}</span>${item.label?`<span style="color:var(--muted);font-size:10px;margin-left:auto">${item.label}</span>`:''}</div>`;
-        }
-      });
+    for(const[type,items]of Object.entries(grouped)){
+      const tc={composition:'#475569',interface:'#a78bfa',dataflow:'#38bdf8',satisfiedBy:'#f59e0b',decomposition:'#64748b',allocation:'#ef4444',flownBy:'#f472b6',challenges:'#eab308',conflict:'#fb7185'};
+      html+=`<div style="margin-bottom:6px"><span class="dp-tag" style="background:${tc[type]||'#475569'}30;color:${tc[type]||'#475569'}">${type}</span></div>`;
+      items.forEach(i=>{if(i.other)html+=`<div class="dp-conn" onclick="navigateTo('${i.other.id}')"><span style="color:var(--muted)">${i.dir}</span><span style="color:${i.other.color}">${i.other.label.replace(/\n/g,' ')}</span>${i.label?`<span style="color:var(--muted);font-size:10px;margin-left:auto">${i.label}</span>`:''}</div>`});
     }
     html+=`</div>`;
   }
-
-  content.innerHTML=html;
-  panel.classList.add('open');
+  content.innerHTML=html;panel.classList.add('open');
 }
+function closePanel(){document.getElementById('detailPanel').classList.remove('open');selectedNode=null;draw()}
+function navigateTo(nodeId){const node=NODES.find(n=>n.id===nodeId);if(!node)return;const pe=EDGES.find(e=>e.to===node.id&&e.type==='composition');if(pe){const p=NODES.find(n=>n.id===pe.from);if(p&&p.expanded===false)p.expanded=true}cam.x=node.x;cam.y=node.y;selectedNode=node;openPanel(node);draw()}
+function setLayer(l){activeLayer=l;document.querySelectorAll('#diagramControls button').forEach(b=>b.classList.remove('active'));const m={all:'btnAll',physical:'btnPhys',requirements:'btnReq',functions:'btnFunc',missions:'btnMsn',challenges:'btnChal'};if(m[l])document.getElementById(m[l]).classList.add('active');draw()}
+function resetView(){cam={x:0,y:0,zoom:.75};selectedNode=null;closePanel();draw()}
+function searchNodes(t){searchTerm=t;draw()}
 
-function closePanel(){
-  document.getElementById('detailPanel').classList.remove('open');
-  selectedNode=null;
-  draw();
-}
-
-function navigateTo(nodeId){
-  const node=NODES.find(n=>n.id===nodeId);
-  if(!node) return;
-  const parentEdge=EDGES.find(e=>e.to===node.id&&e.type==='composition');
-  if(parentEdge){const parent=NODES.find(n=>n.id===parentEdge.from);if(parent&&parent.expanded===false)parent.expanded=true}
-  cam.x=node.x; cam.y=node.y;
-  selectedNode=node;
-  openPanel(node);
-  draw();
-}
-
-// =========================================================================
-// ISSUES DRAWER
-// =========================================================================
-function toggleIssues(){
-  issuesOpen=!issuesOpen;
-  document.getElementById('issuesDrawer').classList.toggle('open',issuesOpen);
-  document.getElementById('btnIssues').classList.toggle('active',issuesOpen);
-}
-
-function renderIssues(){
-  const list=document.getElementById('issuesList');
-  let html='';
-  ISSUES.forEach(iss=>{
-    const isConflict=iss.type==='conflict';
-    html+=`<div class="issue-card" onclick="focusIssue(${iss.id})">`;
-    html+=`<div class="issue-type"><span class="dot" style="background:${isConflict?'#fb7185':'#f59e0b'}"></span><span style="color:${isConflict?'#fb7185':'#f59e0b'}">${iss.type}</span><span style="margin-left:auto;font-size:9px;color:#94a3b8">${iss.severity}</span></div>`;
-    html+=`<div class="issue-title">${iss.title}</div>`;
-    html+=`<div class="issue-desc">${iss.desc}</div>`;
-    html+=`<div class="issue-refs">`;
-    iss.refs.forEach(ref=>{
-      const node=NODES.find(n=>n.id===ref);
-      if(node) html+=`<span class="ref-chip" onclick="event.stopPropagation();navigateTo('${ref}')">${node.label.replace(/\n/g,' ')}</span>`;
-    });
-    html+=`</div></div>`;
-  });
-  list.innerHTML=html;
-}
-
-function focusIssue(issueId){
-  const iss=ISSUES.find(i=>i.id===issueId);
-  if(!iss||!iss.refs.length) return;
-  const node=NODES.find(n=>n.id===iss.refs[0]);
-  if(node){
-    navigateTo(node.id);
-  }
-}
-
-// =========================================================================
-// CONTROLS
-// =========================================================================
-function setLayer(layer){
-  activeLayer=layer;
-  document.querySelectorAll('.controls button:not(.issues-btn)').forEach(b=>b.classList.remove('active'));
-  const btnMap={all:'btnAll',physical:'btnPhys',requirements:'btnReq',functions:'btnFunc',missions:'btnMsn',challenges:'btnChal'};
-  if(btnMap[layer]) document.getElementById(btnMap[layer]).classList.add('active');
-  draw();
-}
-
-function resetView(){cam={x:0,y:0,zoom:0.75};selectedNode=null;closePanel();draw()}
-
-function searchNodes(term){searchTerm=term;draw()}
-
-// =========================================================================
-// INIT
-// =========================================================================
-resize();
-resetView();
-renderIssues();
+// Init
+resize();resetView();
 </script>
 </body>
 </html>
